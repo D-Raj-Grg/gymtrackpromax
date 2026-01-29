@@ -1,0 +1,104 @@
+//
+//  Equipment.swift
+//  GymTrack Pro
+//
+//  Created by Claude Code on 27/01/26.
+//
+
+import Foundation
+
+/// Equipment types for exercises
+enum Equipment: String, Codable, CaseIterable {
+    case barbell = "barbell"
+    case dumbbell = "dumbbell"
+    case cable = "cable"
+    case machine = "machine"
+    case bodyweight = "bodyweight"
+    case kettlebell = "kettlebell"
+    case ezBar = "ezBar"
+    case smithMachine = "smithMachine"
+    case resistanceBand = "resistanceBand"
+    case trapBar = "trapBar"
+
+    /// Display name for UI
+    var displayName: String {
+        switch self {
+        case .barbell:
+            return "Barbell"
+        case .dumbbell:
+            return "Dumbbell"
+        case .cable:
+            return "Cable"
+        case .machine:
+            return "Machine"
+        case .bodyweight:
+            return "Bodyweight"
+        case .kettlebell:
+            return "Kettlebell"
+        case .ezBar:
+            return "EZ Bar"
+        case .smithMachine:
+            return "Smith Machine"
+        case .resistanceBand:
+            return "Resistance Band"
+        case .trapBar:
+            return "Trap Bar"
+        }
+    }
+
+    /// Icon name (SF Symbol)
+    var iconName: String {
+        switch self {
+        case .barbell:
+            return "dumbbell.fill"
+        case .dumbbell:
+            return "dumbbell.fill"
+        case .cable:
+            return "arrow.up.and.down.and.arrow.left.and.right"
+        case .machine:
+            return "gearshape.fill"
+        case .bodyweight:
+            return "figure.stand"
+        case .kettlebell:
+            return "circle.fill"
+        case .ezBar:
+            return "dumbbell.fill"
+        case .smithMachine:
+            return "square.grid.3x3.fill"
+        case .resistanceBand:
+            return "arrow.left.and.right"
+        case .trapBar:
+            return "hexagon.fill"
+        }
+    }
+
+    /// Whether this equipment typically requires a spotter
+    var requiresSpotter: Bool {
+        switch self {
+        case .barbell, .smithMachine:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// Standard weight increments in kg
+    var standardIncrementKg: Double {
+        switch self {
+        case .barbell, .ezBar, .trapBar:
+            return 2.5
+        case .dumbbell:
+            return 2.0
+        case .cable, .machine:
+            return 2.5
+        case .smithMachine:
+            return 2.5
+        case .kettlebell:
+            return 4.0
+        case .bodyweight:
+            return 0
+        case .resistanceBand:
+            return 0
+        }
+    }
+}
