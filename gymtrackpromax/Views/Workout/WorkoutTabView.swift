@@ -187,19 +187,34 @@ struct WorkoutTabView: View {
                 )
             }
 
-            // Start workout button
-            Button {
-                let generator = UIImpactFeedbackGenerator(style: .medium)
-                generator.impactOccurred()
-                selectedWorkoutDay = workout
-            } label: {
-                HStack {
-                    Image(systemName: "play.fill")
-                    Text("Start Workout")
+            // Start workout or add exercises button
+            if workout.exerciseCount > 0 {
+                Button {
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                    generator.impactOccurred()
+                    selectedWorkoutDay = workout
+                } label: {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("Start Workout")
+                    }
                 }
+                .primaryButtonStyle()
+                .padding(.top, AppSpacing.small)
+            } else {
+                Button {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                    showingSplitList = true
+                } label: {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Add Exercises")
+                    }
+                }
+                .secondaryButtonStyle()
+                .padding(.top, AppSpacing.small)
             }
-            .primaryButtonStyle()
-            .padding(.top, AppSpacing.small)
         }
         .padding(AppSpacing.card)
         .background(Color.gymCard)
@@ -262,7 +277,11 @@ struct WorkoutTabView: View {
         Button {
             let generator = UIImpactFeedbackGenerator(style: .light)
             generator.impactOccurred()
-            selectedWorkoutDay = workoutDay
+            if workoutDay.exerciseCount > 0 {
+                selectedWorkoutDay = workoutDay
+            } else {
+                showingSplitList = true
+            }
         } label: {
             HStack(spacing: AppSpacing.component) {
                 // Workout icon

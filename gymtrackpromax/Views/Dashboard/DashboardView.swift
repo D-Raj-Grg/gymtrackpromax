@@ -19,6 +19,7 @@ struct DashboardView: View {
 
     @State private var viewModel: DashboardViewModel?
     @State private var selectedWorkoutDay: WorkoutDay?
+    @State private var showingSplitList: Bool = false
 
     // MARK: - Computed Properties
 
@@ -52,9 +53,11 @@ struct DashboardView: View {
                             .padding(.horizontal, AppSpacing.standard)
 
                         // Today's workout card
-                        TodayWorkoutCard(workoutDay: todaysWorkout) {
-                            startWorkout()
-                        }
+                        TodayWorkoutCard(
+                            workoutDay: todaysWorkout,
+                            onStartWorkout: { startWorkout() },
+                            onAddExercises: { showingSplitList = true }
+                        )
                         .padding(.horizontal, AppSpacing.standard)
 
                         // Quick stats
@@ -78,6 +81,11 @@ struct DashboardView: View {
         }
         .fullScreenCover(item: $selectedWorkoutDay) { day in
             ActiveWorkoutView(workoutDay: day)
+        }
+        .sheet(isPresented: $showingSplitList) {
+            NavigationStack {
+                SplitListView()
+            }
         }
         .onAppear {
             setupViewModel()

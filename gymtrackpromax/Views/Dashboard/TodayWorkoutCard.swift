@@ -14,6 +14,7 @@ struct TodayWorkoutCard: View {
 
     let workoutDay: WorkoutDay?
     let onStartWorkout: () -> Void
+    var onAddExercises: (() -> Void)? = nil
 
     // MARK: - Body
 
@@ -80,19 +81,39 @@ struct TodayWorkoutCard: View {
                 )
             }
 
-            // Start workout button
-            Button {
-                HapticManager.mediumImpact()
-                onStartWorkout()
-            } label: {
-                HStack {
-                    Image(systemName: "play.fill")
-                    Text("Start Workout")
+            // Start workout or add exercises button
+            if workout.exerciseCount > 0 {
+                Button {
+                    HapticManager.mediumImpact()
+                    onStartWorkout()
+                } label: {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("Start Workout")
+                    }
                 }
+                .primaryButtonStyle()
+                .padding(.top, AppSpacing.small)
+                .accessibleButton(label: "Start \(workout.name) workout", hint: "Double tap to begin your workout")
+            } else {
+                VStack(spacing: AppSpacing.small) {
+                    Text("No exercises added yet")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.gymTextMuted)
+
+                    Button {
+                        HapticManager.buttonTap()
+                        onAddExercises?()
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Add Exercises")
+                        }
+                    }
+                    .secondaryButtonStyle()
+                }
+                .padding(.top, AppSpacing.small)
             }
-            .primaryButtonStyle()
-            .padding(.top, AppSpacing.small)
-            .accessibleButton(label: "Start \(workout.name) workout", hint: "Double tap to begin your workout")
         }
     }
 
