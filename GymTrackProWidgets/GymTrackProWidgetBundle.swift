@@ -14,5 +14,6 @@ struct GymTrackProWidgetBundle: WidgetBundle {
         StreakWidget()
         TodayWorkoutWidget()
         WeeklyProgressWidget()
+        WorkoutLiveActivity()
     }
 }

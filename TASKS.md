@@ -662,12 +662,12 @@
 **Duration:** Week 4-5
 
 #### ActivityKit Integration
-- [ ] Create Live Activity for active workout
-- [ ] Show current exercise
-- [ ] Show elapsed time
-- [ ] Show rest timer countdown
-- [ ] Update on set logged
-- [ ] End activity on workout complete
+- [x] Create Live Activity for active workout
+- [x] Show current exercise
+- [x] Show elapsed time
+- [x] Show rest timer countdown
+- [x] Update on set logged
+- [x] End activity on workout complete
 
 ---
 
@@ -779,9 +779,9 @@
 |-----------|-------|-----------|----------|
 | 2.1 Custom Splits | 21 | 21 | 100% ✅ |
 | 2.2 Widgets | 6 | 6 | 100% |
-| 2.3 Live Activities | 6 | 0 | 0% |
+| 2.3 Live Activities | 6 | 6 | 100% ✅ |
 | 2.4 Additional Features | 12 | 0 | 0% |
-| **Total** | **45** | **27** | **60%** |
+| **Total** | **45** | **33** | **73%** |
 
 ---
 

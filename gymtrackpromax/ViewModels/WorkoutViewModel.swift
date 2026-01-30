@@ -5,6 +5,7 @@
 //  Created by Claude Code on 28/01/26.
 //
 
+import ActivityKit
 import Foundation
 import SwiftData
 import SwiftUI
@@ -134,6 +135,7 @@ final class WorkoutViewModel {
     private var modelContext: ModelContext
     private var workoutService = WorkoutService.shared
     private var elapsedTimer: Timer?
+    private var restTimerObserver: Any?
 
     // MARK: - Initialization
 
@@ -162,6 +164,12 @@ final class WorkoutViewModel {
         // Start elapsed time timer
         startElapsedTimer()
 
+        // Start Live Activity
+        startLiveActivity()
+
+        // Observe rest timer completion to clear Live Activity rest state
+        observeRestTimerCompletion()
+
         // Request notification permission
         Task {
             _ = await timerService.requestNotificationPermission()
@@ -183,6 +191,12 @@ final class WorkoutViewModel {
 
         // Start elapsed time timer
         startElapsedTimer()
+
+        // Start Live Activity
+        startLiveActivity()
+
+        // Observe rest timer completion
+        observeRestTimerCompletion()
     }
 
     /// Complete the workout
@@ -199,6 +213,10 @@ final class WorkoutViewModel {
         )
 
         isWorkoutCompleted = true
+
+        // End Live Activity
+        LiveActivityService.shared.endActivity()
+        removeRestTimerObserver()
 
         // Refresh widgets with updated data
         WidgetUpdateService.reloadAllTimelines()
@@ -219,6 +237,10 @@ final class WorkoutViewModel {
             saveProgress: saveProgress,
             context: modelContext
         )
+
+        // End Live Activity
+        LiveActivityService.shared.endActivity()
+        removeRestTimerObserver()
 
         currentSession = nil
     }
@@ -271,6 +293,9 @@ final class WorkoutViewModel {
         if !setLog.isWarmup {
             startRestTimer()
         }
+
+        // Update Live Activity (rest timer update handled in startRestTimer)
+        updateLiveActivity()
     }
 
     /// Delete a set
@@ -327,6 +352,7 @@ final class WorkoutViewModel {
 
         currentExerciseIndex += 1
         initializeSetInput()
+        updateLiveActivity()
 
         // Light haptic
         HapticManager.buttonTap()
@@ -338,6 +364,7 @@ final class WorkoutViewModel {
 
         currentExerciseIndex -= 1
         initializeSetInput()
+        updateLiveActivity()
 
         // Light haptic
         HapticManager.buttonTap()
@@ -350,6 +377,7 @@ final class WorkoutViewModel {
         currentExerciseIndex = index
         initializeSetInput()
         showExerciseListSheet = false
+        updateLiveActivity()
 
         // Light haptic
         HapticManager.buttonTap()
@@ -361,12 +389,23 @@ final class WorkoutViewModel {
     func startRestTimer() {
         timerService.start(duration: defaultRestTime)
         showRestTimerOverlay = true
+
+        // Update Live Activity with rest timer
+        LiveActivityService.shared.startRestTimer(
+            currentState: buildCurrentContentState(),
+            restDuration: defaultRestTime
+        )
     }
 
     /// Skip the rest timer
     func skipRestTimer() {
         timerService.skip()
         showRestTimerOverlay = false
+
+        // Clear rest timer from Live Activity
+        LiveActivityService.shared.clearRestTimer(
+            currentState: buildCurrentContentState()
+        )
     }
 
     /// Dismiss the rest timer overlay
@@ -429,6 +468,74 @@ final class WorkoutViewModel {
             Task { @MainActor [weak self] in
                 self?.elapsedTime += 1
             }
+        }
+    }
+
+    // MARK: - Live Activity Helpers
+
+    private func buildCurrentContentState() -> WorkoutActivityAttributes.ContentState {
+        let exerciseLog = currentExerciseLog
+        let exerciseName = exerciseLog?.exerciseName ?? "Exercise"
+        let muscleGroup = exerciseLog?.exercise?.primaryMuscle.displayName ?? "Muscle"
+        let setsCompleted = exerciseLog?.sets.count ?? 0
+        let targetSets = currentPlannedExercise?.targetSets ?? 4
+        let totalSetsLogged = exerciseLogs.reduce(0) { $0 + $1.sets.count }
+
+        return WorkoutActivityAttributes.ContentState(
+            currentExerciseName: exerciseName,
+            currentMuscleGroup: muscleGroup,
+            setsCompleted: setsCompleted,
+            targetSets: targetSets,
+            currentExerciseNumber: currentExerciseIndex + 1,
+            totalSetsLogged: totalSetsLogged,
+            isResting: false,
+            restTimerStart: nil,
+            restTimerEnd: nil
+        )
+    }
+
+    private func updateLiveActivity() {
+        let state = buildCurrentContentState()
+        LiveActivityService.shared.updateActivity(state: state)
+    }
+
+    private func startLiveActivity() {
+        guard let session = currentSession,
+              let workoutDay = session.workoutDay else { return }
+
+        let workoutName = workoutDay.name
+        let totalExercises = workoutDay.sortedExercises.count
+        let initialState = buildCurrentContentState()
+
+        LiveActivityService.shared.startActivity(
+            workoutName: workoutName,
+            startTime: session.startTime,
+            totalExercises: totalExercises,
+            initialState: initialState
+        )
+    }
+
+    private func observeRestTimerCompletion() {
+        removeRestTimerObserver()
+        restTimerObserver = NotificationCenter.default.addObserver(
+            forName: .restTimerCompleted,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                LiveActivityService.shared.clearRestTimer(
+                    currentState: self.buildCurrentContentState()
+                )
+            }
+        }
+    }
+
+    private func removeRestTimerObserver() {
+        if let observer = restTimerObserver {
+            NotificationCenter.default.removeObserver(observer)
+            restTimerObserver = nil
         }
     }
 

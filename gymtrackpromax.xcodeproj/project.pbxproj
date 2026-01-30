@@ -78,6 +78,13 @@
 			);
 			target = 3F34A8AA2F2CA06D0090F983 /* GymTrackProWidgetsExtension */;
 		};
+		3F34A8E02F2CB0000090F983 /* Exceptions for "GymTrackProWidgets" folder in "gymtrackpromax" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				LiveActivity/WorkoutActivityAttributes.swift,
+			);
+			target = 3F34A6842F292DE10090F983 /* gymtrackpromax */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -93,6 +100,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3F34A8C12F2CA06E0090F983 /* Exceptions for "GymTrackProWidgets" folder in "GymTrackProWidgetsExtension" target */,
+				3F34A8E02F2CB0000090F983 /* Exceptions for "GymTrackProWidgets" folder in "gymtrackpromax" target */,
 			);
 			path = GymTrackProWidgets;
 			sourceTree = "<group>";
@@ -409,6 +417,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Gym Track Pro";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -443,6 +452,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Gym Track Pro";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
