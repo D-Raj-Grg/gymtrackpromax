@@ -118,6 +118,30 @@ enum SharedModelContainer {
         return true
     }
 
+    // MARK: - Diagnostics
+
+    /// Diagnostic info about the App Group container state.
+    struct AppGroupDiagnostics {
+        let containerAccessible: Bool
+        let databaseExists: Bool
+        let storeURL: String
+    }
+
+    /// Checks whether the App Group container and database file are accessible.
+    static func diagnoseAppGroup() -> AppGroupDiagnostics {
+        let containerAccessible = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: appGroupIdentifier
+        ) != nil
+
+        let databaseExists = FileManager.default.fileExists(atPath: sharedStoreURL.path)
+
+        return AppGroupDiagnostics(
+            containerAccessible: containerAccessible,
+            databaseExists: databaseExists,
+            storeURL: sharedStoreURL.path
+        )
+    }
+
     // MARK: - Private Helpers
 
     /// Returns the default SwiftData store URL (before App Group migration).

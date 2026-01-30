@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 @main
 struct GymTrackProApp: App {
@@ -26,6 +27,7 @@ struct GymTrackProApp: App {
     // MARK: - State
 
     @State private var isExercisesLoaded = false
+    @Environment(\.scenePhase) private var scenePhase
 
     // MARK: - Body
 
@@ -45,6 +47,11 @@ struct GymTrackProApp: App {
             }
         }
         .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                WidgetUpdateService.reloadAllTimelines()
+            }
+        }
     }
 
     // MARK: - Seed Data

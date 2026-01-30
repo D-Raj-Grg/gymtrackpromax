@@ -7,10 +7,13 @@
 
 import Foundation
 import SwiftData
+import os
 
 /// Centralized data fetching for all widgets.
 /// Uses a read-only ModelContainer via SharedModelContainer.
 struct WidgetDataProvider {
+
+    private static let logger = Logger(subsystem: "gymtrackpromax.widgets", category: "DataProvider")
 
     // MARK: - Widget Data
 
@@ -58,7 +61,14 @@ struct WidgetDataProvider {
 
     /// Fetches all widget-relevant data from the shared store.
     static func fetchData() -> WidgetData {
-        guard let container = try? SharedModelContainer.makeReadOnlyContainer() else {
+        let container: ModelContainer
+        do {
+            container = try SharedModelContainer.makeReadOnlyContainer()
+        } catch {
+            logger.error("Failed to create read-only ModelContainer: \(error.localizedDescription)")
+            logger.error("Store URL: \(SharedModelContainer.sharedStoreURL.path)")
+            let diagnostics = SharedModelContainer.diagnoseAppGroup()
+            logger.error("Diagnostics — containerAccessible: \(diagnostics.containerAccessible), dbExists: \(diagnostics.databaseExists)")
             return .empty
         }
 
@@ -66,7 +76,15 @@ struct WidgetDataProvider {
 
         // Fetch user
         let userDescriptor = FetchDescriptor<User>()
-        guard let user = try? context.fetch(userDescriptor).first else {
+        let user: User
+        do {
+            guard let fetchedUser = try context.fetch(userDescriptor).first else {
+                logger.warning("No User found in shared store — onboarding may not be complete")
+                return .empty
+            }
+            user = fetchedUser
+        } catch {
+            logger.error("Failed to fetch User: \(error.localizedDescription)")
             return .empty
         }
 
@@ -120,52 +138,51 @@ struct WidgetDataProvider {
 
     // MARK: - PR Counting
 
-    /// Counts how many exercises achieved a PR this week by comparing best 1RM in weekly sessions
-    /// to best 1RM in all prior sessions.
-    private static func countWeeklyPRs(sessions: [WorkoutSession], user: User, context: ModelContext) -> Int {
-        var prCount = 0
-
-        // Gather all exercise logs from this week's sessions
-        var weeklyBestByExercise: [UUID: Double] = [:]
-        for session in sessions {
-            for log in (session.exerciseLogs ?? []) {
-                guard let exerciseID = log.exercise?.id else { continue }
-                let best1RM = log.bestSet?.estimated1RM ?? 0
-                if best1RM > (weeklyBestByExercise[exerciseID] ?? 0) {
-                    weeklyBestByExercise[exerciseID] = best1RM
-                }
+    /// Counts PRs achieved this week using the same logic as the app's ProgressViewModel:
+    /// Process all sessions chronologically, counting every set that beats the exercise's
+    /// all-time best estimated 1RM. First-time exercises count as PRs.
+    private static func countWeeklyPRs(sessions weeklySessions: [WorkoutSession], user: User, context: ModelContext) -> Int {
+        // Fetch all completed sessions to build chronological PR history
+        var allSessionsDescriptor = FetchDescriptor<WorkoutSession>(
+            predicate: #Predicate<WorkoutSession> { session in
+                session.endTime != nil
             }
-        }
+        )
+        allSessionsDescriptor.fetchLimit = 500
 
-        // Compare against all-time bests (excluding this week)
-        let calendar = Calendar.current
-        let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())) ?? Date()
+        let allSessions = (try? context.fetch(allSessionsDescriptor)) ?? []
+        let sortedSessions = allSessions.filter { $0.endTime != nil }.sorted { $0.startTime < $1.startTime }
 
-        for (exerciseID, weeklyBest) in weeklyBestByExercise {
-            var descriptor = FetchDescriptor<WorkoutSession>(
-                predicate: #Predicate<WorkoutSession> { session in
-                    session.startTime < startOfWeek && session.endTime != nil
-                }
-            )
-            descriptor.fetchLimit = 200
+        // Build set of weekly session IDs for filtering
+        let weeklySessionIds = Set(weeklySessions.map { $0.id })
 
-            let priorSessions = (try? context.fetch(descriptor)) ?? []
-            var priorBest: Double = 0
-            for session in priorSessions {
-                for log in (session.exerciseLogs ?? []) {
-                    guard log.exercise?.id == exerciseID else { continue }
-                    let best1RM = log.bestSet?.estimated1RM ?? 0
-                    if best1RM > priorBest {
-                        priorBest = best1RM
+        // Track best 1RM per exercise chronologically
+        var exerciseBests: [UUID: Double] = [:]
+        var prsInWeek = 0
+
+        for session in sortedSessions {
+            for log in (session.exerciseLogs ?? []) {
+                guard let exercise = log.exercise else { continue }
+
+                // Check each working set (non-warmup)
+                for set in (log.sets ?? []) {
+                    guard !set.isWarmup else { continue }
+
+                    let estimated1RM = set.estimated1RM
+                    let currentBest = exerciseBests[exercise.id] ?? 0
+
+                    if estimated1RM > currentBest {
+                        exerciseBests[exercise.id] = estimated1RM
+
+                        // Count as PR if this session is in the current week
+                        if weeklySessionIds.contains(session.id) {
+                            prsInWeek += 1
+                        }
                     }
                 }
             }
-
-            if weeklyBest > priorBest && priorBest > 0 {
-                prCount += 1
-            }
         }
 
-        return prCount
+        return prsInWeek
     }
 }

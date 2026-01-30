@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 /// ViewModel managing all onboarding state and logic
 @Observable
@@ -198,6 +199,9 @@ final class OnboardingViewModel {
 
         // Mark onboarding complete
         UserDefaults.standard.set(true, forKey: UserDefaultsKeys.hasCompletedOnboarding)
+
+        // Refresh widgets so they pick up the new split data
+        WidgetUpdateService.reloadAllTimelines()
     }
 }
 

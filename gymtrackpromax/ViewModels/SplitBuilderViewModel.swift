@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 /// Errors that can occur during split/exercise operations
 enum SplitBuilderError: LocalizedError {
@@ -494,6 +495,9 @@ final class SplitBuilderViewModel {
         } catch {
             throw SplitBuilderError.saveFailed(error)
         }
+
+        // Refresh widgets with new split data
+        WidgetUpdateService.reloadAllTimelines()
     }
 
     private func updateExistingSplit(id: UUID, name: String, user: User) throws {
@@ -547,6 +551,9 @@ final class SplitBuilderViewModel {
         } catch {
             throw SplitBuilderError.saveFailed(error)
         }
+
+        // Refresh widgets with updated split data
+        WidgetUpdateService.reloadAllTimelines()
     }
 
     // MARK: - Split List Operations
@@ -562,6 +569,9 @@ final class SplitBuilderViewModel {
         split.isActive = true
 
         try? modelContext.save()
+
+        // Refresh widgets with new active split
+        WidgetUpdateService.reloadAllTimelines()
     }
 
     /// Delete a split
