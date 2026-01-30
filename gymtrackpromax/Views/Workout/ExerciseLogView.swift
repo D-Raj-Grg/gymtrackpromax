@@ -331,8 +331,8 @@ struct ExerciseLogView: View {
         onDuplicateLastSet: {},
         onDeleteSet: { _ in },
         onEditSet: { _ in },
-        onIncrementWeight: { weight += 2.5 },
-        onDecrementWeight: { weight -= 2.5 },
+        onIncrementWeight: { weight += 0.5 },
+        onDecrementWeight: { weight -= 0.5 },
         onIncrementReps: { reps += 1 },
         onDecrementReps: { reps -= 1 },
         onNotesChanged: { print("Notes: \($0)") }

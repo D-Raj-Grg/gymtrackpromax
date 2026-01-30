@@ -85,20 +85,10 @@ enum Equipment: String, Codable, CaseIterable {
     /// Standard weight increments in kg
     var standardIncrementKg: Double {
         switch self {
-        case .barbell, .ezBar, .trapBar:
-            return 2.5
-        case .dumbbell:
-            return 2.0
-        case .cable, .machine:
-            return 2.5
-        case .smithMachine:
-            return 2.5
-        case .kettlebell:
-            return 4.0
-        case .bodyweight:
+        case .bodyweight, .resistanceBand:
             return 0
-        case .resistanceBand:
-            return 0
+        default:
+            return 0.5
         }
     }
 }

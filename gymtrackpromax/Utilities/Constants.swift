@@ -100,10 +100,10 @@ enum WorkoutDefaults {
     static let maxReps: Int = 12
 
     /// Weight increment for barbell (kg)
-    static let weightIncrementKg: Double = 2.5
+    static let weightIncrementKg: Double = 0.5
 
     /// Weight increment for dumbbell (kg)
-    static let dumbbellIncrementKg: Double = 2.0
+    static let dumbbellIncrementKg: Double = 0.5
 }
 
 // MARK: - App Constants
@@ -158,4 +158,7 @@ extension Notification.Name {
 
     /// Posted when rest timer completes
     static let restTimerCompleted = Notification.Name("restTimerCompleted")
+
+    /// Posted when user taps rest timer notification
+    static let restTimerNotificationTapped = Notification.Name("restTimerNotificationTapped")
 }

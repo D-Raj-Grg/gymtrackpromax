@@ -33,6 +33,12 @@ struct SetInputView: View {
     @State private var showWeightForBodyweight = false
     @State private var isTimerRunning = false
     @State private var timerStartTime: Date?
+    @State private var isEditingWeight = false
+    @State private var weightText = ""
+    @State private var isEditingReps = false
+    @State private var repsText = ""
+    @FocusState private var weightFieldFocused: Bool
+    @FocusState private var repsFieldFocused: Bool
 
     // MARK: - Constants
 
@@ -178,11 +184,31 @@ struct SetInputView: View {
                 }
 
                 VStack(spacing: 0) {
-                    Text(formattedWeight)
-                        .font(.system(.title, design: .monospaced))
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.gymText)
-                        .frame(minWidth: 60)
+                    if isEditingWeight {
+                        TextField("0", text: $weightText)
+                            .font(.system(.title, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.gymText)
+                            .multilineTextAlignment(.center)
+                            .keyboardType(.decimalPad)
+                            .focused($weightFieldFocused)
+                            .frame(minWidth: 60)
+                            .onSubmit { commitWeightEdit() }
+                            .onChange(of: weightFieldFocused) { _, focused in
+                                if !focused { commitWeightEdit() }
+                            }
+                    } else {
+                        Text(formattedWeight)
+                            .font(.system(.title, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.gymText)
+                            .frame(minWidth: 60)
+                            .onTapGesture {
+                                weightText = formattedWeight
+                                isEditingWeight = true
+                                weightFieldFocused = true
+                            }
+                    }
 
                     Text(weightUnit.symbol)
                         .font(.caption)
@@ -210,6 +236,20 @@ struct SetInputView: View {
         return String(format: "%.1f", weight)
     }
 
+    private func commitWeightEdit() {
+        if let value = Double(weightText), value >= 0 {
+            weight = value
+        }
+        isEditingWeight = false
+    }
+
+    private func commitRepsEdit() {
+        if let value = Int(repsText), value >= 0 {
+            reps = value
+        }
+        isEditingReps = false
+    }
+
     // MARK: - Reps Stepper
 
     private var repsStepper: some View {
@@ -230,11 +270,33 @@ struct SetInputView: View {
                         .clipShape(Circle())
                 }
 
-                Text("\(reps)")
-                    .font(.system(.title, design: .monospaced))
-                    .fontWeight(.bold)
-                    .foregroundStyle(Color.gymText)
-                    .frame(minWidth: 40)
+                Group {
+                    if isEditingReps {
+                        TextField("0", text: $repsText)
+                            .font(.system(.title, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.gymText)
+                            .multilineTextAlignment(.center)
+                            .keyboardType(.numberPad)
+                            .focused($repsFieldFocused)
+                            .frame(minWidth: 40)
+                            .onSubmit { commitRepsEdit() }
+                            .onChange(of: repsFieldFocused) { _, focused in
+                                if !focused { commitRepsEdit() }
+                            }
+                    } else {
+                        Text("\(reps)")
+                            .font(.system(.title, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.gymText)
+                            .frame(minWidth: 40)
+                            .onTapGesture {
+                                repsText = "\(reps)"
+                                isEditingReps = true
+                                repsFieldFocused = true
+                            }
+                    }
+                }
 
                 Button {
                     onIncrementReps()
@@ -569,8 +631,8 @@ struct SetInputView: View {
         canDuplicateLastSet: true,
         onLogSet: { print("Log set") },
         onDuplicateLastSet: { print("Copy last set") },
-        onIncrementWeight: { weight += 2.5 },
-        onDecrementWeight: { weight -= 2.5 },
+        onIncrementWeight: { weight += 0.5 },
+        onDecrementWeight: { weight -= 0.5 },
         onIncrementReps: { reps += 1 },
         onDecrementReps: { reps -= 1 }
     )
@@ -627,8 +689,8 @@ struct SetInputView: View {
         canDuplicateLastSet: true,
         onLogSet: { print("Log set: \(reps) reps") },
         onDuplicateLastSet: { print("Copy last set") },
-        onIncrementWeight: { weight += 2.5 },
-        onDecrementWeight: { weight = max(0, weight - 2.5) },
+        onIncrementWeight: { weight += 0.5 },
+        onDecrementWeight: { weight = max(0, weight - 0.5) },
         onIncrementReps: { reps += 1 },
         onDecrementReps: { reps = max(0, reps - 1) }
     )
@@ -656,8 +718,8 @@ struct SetInputView: View {
         canDuplicateLastSet: true,
         onLogSet: { print("Log set: \(weight)kg × \(duration)s") },
         onDuplicateLastSet: { print("Copy last set") },
-        onIncrementWeight: { weight += 2.5 },
-        onDecrementWeight: { weight = max(0, weight - 2.5) },
+        onIncrementWeight: { weight += 0.5 },
+        onDecrementWeight: { weight = max(0, weight - 0.5) },
         onIncrementReps: {},
         onDecrementReps: {}
     )
