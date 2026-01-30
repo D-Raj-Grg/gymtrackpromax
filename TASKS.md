@@ -39,15 +39,15 @@
   - [x] Select SwiftUI interface
   - [x] Select SwiftData storage
   - [x] Set minimum deployment: iOS 17.0
-- [ ] ⭐ Configure project settings
-  - [ ] Set Display Name
-  - [ ] Configure app icons (placeholder for now)
+- [x] ⭐ Configure project settings
+  - [x] Set Display Name
+  - [x] Configure app icons (placeholder for now)
   - [ ] Set launch screen background color (#0F172A)
   - [ ] Enable required capabilities (Push Notifications)
 - [x] Initialize Git repository
   - [x] Create `.gitignore` for iOS
   - [x] Initial commit
-  - [ ] Set up remote repository (GitHub/GitLab)
+  - [x] Set up remote repository (GitHub/GitLab)
 - [x] Create folder structure
   - [x] `/App` - App entry point
   - [x] `/Models` - SwiftData models
@@ -649,12 +649,12 @@
 **Duration:** Week 3-4
 
 #### WidgetKit Integration
-- [ ] Create Widget extension target
-- [ ] Create `TodayWorkoutWidget` (small, medium)
-- [ ] Create `StreakWidget` (small)
-- [ ] Create `WeeklyProgressWidget` (medium)
-- [ ] Implement widget timeline updates
-- [ ] Add widget configuration
+- [x] Create Widget extension target (files created; user must add target in Xcode)
+- [x] Create `TodayWorkoutWidget` (small, medium)
+- [x] Create `StreakWidget` (small)
+- [x] Create `WeeklyProgressWidget` (medium)
+- [x] Implement widget timeline updates
+- [x] Add widget configuration
 
 ---
 
@@ -764,7 +764,7 @@
 ### Phase 1 Progress
 | Milestone | Tasks | Completed | Progress |
 |-----------|-------|-----------|----------|
-| 1.1 Foundation | 25 | 22 | 88% |
+| 1.1 Foundation | 25 | 24 | 96% ✅ |
 | 1.2 Onboarding | 35 | 32 | 91% |
 | 1.3 Dashboard | 15 | 13 | 87% |
 | 1.4 Active Workout | 30 | 26 | 87% |
@@ -772,16 +772,16 @@
 | 1.6 Progress | 15 | 14 | 93% ✅ |
 | 1.7 Profile | 15 | 15 | 100% ✅ |
 | 1.8 Polish | 25 | 23 | 92% ✅ |
-| **Total** | **175** | **159** | **91%** |
+| **Total** | **175** | **163** | **93%** |
 
 ### Phase 2 Progress
 | Milestone | Tasks | Completed | Progress |
 |-----------|-------|-----------|----------|
 | 2.1 Custom Splits | 21 | 21 | 100% ✅ |
-| 2.2 Widgets | 6 | 0 | 0% |
+| 2.2 Widgets | 6 | 6 | 100% |
 | 2.3 Live Activities | 6 | 0 | 0% |
 | 2.4 Additional Features | 12 | 0 | 0% |
-| **Total** | **45** | **21** | **47%** |
+| **Total** | **45** | **27** | **60%** |
 
 ---
 

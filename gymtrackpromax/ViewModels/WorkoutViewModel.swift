@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import WidgetKit
 
 /// ViewModel for managing active workout state
 @Observable
@@ -198,6 +199,9 @@ final class WorkoutViewModel {
         )
 
         isWorkoutCompleted = true
+
+        // Refresh widgets with updated data
+        WidgetUpdateService.reloadAllTimelines()
 
         // Haptic feedback
         HapticManager.workoutComplete()

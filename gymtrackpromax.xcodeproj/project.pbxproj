@@ -6,14 +6,95 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3F34A8AE2F2CA06D0090F983 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F34A8AD2F2CA06D0090F983 /* WidgetKit.framework */; };
+		3F34A8B02F2CA06D0090F983 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F34A8AF2F2CA06D0090F983 /* SwiftUI.framework */; };
+		3F34A8BD2F2CA06E0090F983 /* GymTrackProWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3F34A8AB2F2CA06D0090F983 /* GymTrackProWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3F34A8BB2F2CA06E0090F983 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3F34A67D2F292DE10090F983 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3F34A8AA2F2CA06D0090F983;
+			remoteInfo = GymTrackProWidgetsExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		3F34A8BE2F2CA06E0090F983 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3F34A8BD2F2CA06E0090F983 /* GymTrackProWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		3F34A6852F292DE10090F983 /* gymtrackpromax.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gymtrackpromax.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F34A8AB2F2CA06D0090F983 /* GymTrackProWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GymTrackProWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F34A8AD2F2CA06D0090F983 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		3F34A8AF2F2CA06D0090F983 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		3F34A8DD2F2CA17A0090F983 /* GymTrackProWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GymTrackProWidgetsExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3F34A8C12F2CA06E0090F983 /* Exceptions for "GymTrackProWidgets" folder in "GymTrackProWidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3F34A8AA2F2CA06D0090F983 /* GymTrackProWidgetsExtension */;
+		};
+		3F34A8DF2F2CA2920090F983 /* Exceptions for "gymtrackpromax" folder in "GymTrackProWidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/Enums/Equipment.swift,
+				Models/Enums/ExerciseType.swift,
+				Models/Enums/ExperienceLevel.swift,
+				Models/Enums/FitnessGoal.swift,
+				Models/Enums/MuscleGroup.swift,
+				Models/Enums/SplitType.swift,
+				Models/Enums/WeekStartDay.swift,
+				Models/Enums/WeightUnit.swift,
+				Models/Exercise.swift,
+				Models/ExerciseLog.swift,
+				Models/PlannedExercise.swift,
+				Models/SetLog.swift,
+				Models/User.swift,
+				Models/WorkoutDay.swift,
+				Models/WorkoutSession.swift,
+				Models/WorkoutSplit.swift,
+				Services/SharedModelContainer.swift,
+				Utilities/Constants.swift,
+				"Utilities/Extensions/Color+Theme.swift",
+				Views/Onboarding/Components/DayToggleButton.swift,
+			);
+			target = 3F34A8AA2F2CA06D0090F983 /* GymTrackProWidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3F34A6872F292DE10090F983 /* gymtrackpromax */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3F34A8DF2F2CA2920090F983 /* Exceptions for "gymtrackpromax" folder in "GymTrackProWidgetsExtension" target */,
+			);
 			path = gymtrackpromax;
+			sourceTree = "<group>";
+		};
+		3F34A8B12F2CA06D0090F983 /* GymTrackProWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3F34A8C12F2CA06E0090F983 /* Exceptions for "GymTrackProWidgets" folder in "GymTrackProWidgetsExtension" target */,
+			);
+			path = GymTrackProWidgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,13 +107,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3F34A8A82F2CA06D0090F983 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3F34A8B02F2CA06D0090F983 /* SwiftUI.framework in Frameworks */,
+				3F34A8AE2F2CA06D0090F983 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		3F34A67C2F292DE10090F983 = {
 			isa = PBXGroup;
 			children = (
+				3F34A8DD2F2CA17A0090F983 /* GymTrackProWidgetsExtension.entitlements */,
 				3F34A6872F292DE10090F983 /* gymtrackpromax */,
+				3F34A8B12F2CA06D0090F983 /* GymTrackProWidgets */,
+				3F34A8AC2F2CA06D0090F983 /* Frameworks */,
 				3F34A6862F292DE10090F983 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +134,18 @@
 			isa = PBXGroup;
 			children = (
 				3F34A6852F292DE10090F983 /* gymtrackpromax.app */,
+				3F34A8AB2F2CA06D0090F983 /* GymTrackProWidgetsExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		3F34A8AC2F2CA06D0090F983 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3F34A8AD2F2CA06D0090F983 /* WidgetKit.framework */,
+				3F34A8AF2F2CA06D0090F983 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +158,12 @@
 				3F34A6812F292DE10090F983 /* Sources */,
 				3F34A6822F292DE10090F983 /* Frameworks */,
 				3F34A6832F292DE10090F983 /* Resources */,
+				3F34A8BE2F2CA06E0090F983 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3F34A8BC2F2CA06E0090F983 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				3F34A6872F292DE10090F983 /* gymtrackpromax */,
@@ -69,6 +174,28 @@
 			productName = gymtrackpromax;
 			productReference = 3F34A6852F292DE10090F983 /* gymtrackpromax.app */;
 			productType = "com.apple.product-type.application";
+		};
+		3F34A8AA2F2CA06D0090F983 /* GymTrackProWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3F34A8C22F2CA06E0090F983 /* Build configuration list for PBXNativeTarget "GymTrackProWidgetsExtension" */;
+			buildPhases = (
+				3F34A8A72F2CA06D0090F983 /* Sources */,
+				3F34A8A82F2CA06D0090F983 /* Frameworks */,
+				3F34A8A92F2CA06D0090F983 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3F34A8B12F2CA06D0090F983 /* GymTrackProWidgets */,
+			);
+			name = GymTrackProWidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = GymTrackProWidgetsExtension;
+			productReference = 3F34A8AB2F2CA06D0090F983 /* GymTrackProWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +208,9 @@
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					3F34A6842F292DE10090F983 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					3F34A8AA2F2CA06D0090F983 = {
 						CreatedOnToolsVersion = 26.2;
 					};
 				};
@@ -100,12 +230,20 @@
 			projectRoot = "";
 			targets = (
 				3F34A6842F292DE10090F983 /* gymtrackpromax */,
+				3F34A8AA2F2CA06D0090F983 /* GymTrackProWidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3F34A6832F292DE10090F983 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3F34A8A92F2CA06D0090F983 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +260,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3F34A8A72F2CA06D0090F983 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3F34A8BC2F2CA06E0090F983 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3F34A8AA2F2CA06D0090F983 /* GymTrackProWidgetsExtension */;
+			targetProxy = 3F34A8BB2F2CA06E0090F983 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3F34A68E2F292DE20090F983 /* Debug */ = {
@@ -249,6 +402,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = gymtrackpromax/gymtrackpromax.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ADCQHC4ATH;
@@ -282,6 +436,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = gymtrackpromax/gymtrackpromax.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ADCQHC4ATH;
@@ -310,6 +465,70 @@
 			};
 			name = Release;
 		};
+		3F34A8BF2F2CA06E0090F983 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = GymTrackProWidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ADCQHC4ATH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GymTrackProWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = GymTrackProWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gymtrackpromax.gymtrackpromax.GymTrackProWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3F34A8C02F2CA06E0090F983 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = GymTrackProWidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ADCQHC4ATH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GymTrackProWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = GymTrackProWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = gymtrackpromax.gymtrackpromax.GymTrackProWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -327,6 +546,15 @@
 			buildConfigurations = (
 				3F34A6912F292DE20090F983 /* Debug */,
 				3F34A6922F292DE20090F983 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3F34A8C22F2CA06E0090F983 /* Build configuration list for PBXNativeTarget "GymTrackProWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F34A8BF2F2CA06E0090F983 /* Debug */,
+				3F34A8C02F2CA06E0090F983 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

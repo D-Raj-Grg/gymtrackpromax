@@ -13,25 +13,11 @@ struct GymTrackProApp: App {
     // MARK: - SwiftData Container
 
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            User.self,
-            WorkoutSplit.self,
-            WorkoutDay.self,
-            Exercise.self,
-            PlannedExercise.self,
-            WorkoutSession.self,
-            ExerciseLog.self,
-            SetLog.self
-        ])
-
-        let modelConfiguration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            allowsSave: true
-        )
+        // Migrate existing store to App Group container on first launch
+        SharedModelContainer.migrateStoreIfNeeded()
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try SharedModelContainer.makeContainer()
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
