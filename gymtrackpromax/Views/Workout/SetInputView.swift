@@ -98,6 +98,9 @@ struct SetInputView: View {
         .padding(AppSpacing.standard)
         .background(Color.gymCard)
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card))
+        .onTapGesture {
+            dismissEditing()
+        }
     }
 
     // MARK: - Input Section
@@ -173,6 +176,7 @@ struct SetInputView: View {
 
             HStack(spacing: AppSpacing.small) {
                 Button {
+                    dismissEditing()
                     onDecrementWeight()
                 } label: {
                     Image(systemName: "minus")
@@ -197,6 +201,14 @@ struct SetInputView: View {
                             .onChange(of: weightFieldFocused) { _, focused in
                                 if !focused { commitWeightEdit() }
                             }
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("Done") {
+                                        commitWeightEdit()
+                                    }
+                                }
+                            }
                     } else {
                         Text(formattedWeight)
                             .font(.system(.title, design: .monospaced))
@@ -216,6 +228,7 @@ struct SetInputView: View {
                 }
 
                 Button {
+                    dismissEditing()
                     onIncrementWeight()
                 } label: {
                     Image(systemName: "plus")
@@ -241,6 +254,7 @@ struct SetInputView: View {
             weight = value
         }
         isEditingWeight = false
+        weightFieldFocused = false
     }
 
     private func commitRepsEdit() {
@@ -248,6 +262,12 @@ struct SetInputView: View {
             reps = value
         }
         isEditingReps = false
+        repsFieldFocused = false
+    }
+
+    private func dismissEditing() {
+        if isEditingWeight { commitWeightEdit() }
+        if isEditingReps { commitRepsEdit() }
     }
 
     // MARK: - Reps Stepper
@@ -260,6 +280,7 @@ struct SetInputView: View {
 
             HStack(spacing: AppSpacing.small) {
                 Button {
+                    dismissEditing()
                     onDecrementReps()
                 } label: {
                     Image(systemName: "minus")
@@ -284,6 +305,14 @@ struct SetInputView: View {
                             .onChange(of: repsFieldFocused) { _, focused in
                                 if !focused { commitRepsEdit() }
                             }
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("Done") {
+                                        commitRepsEdit()
+                                    }
+                                }
+                            }
                     } else {
                         Text("\(reps)")
                             .font(.system(.title, design: .monospaced))
@@ -299,6 +328,7 @@ struct SetInputView: View {
                 }
 
                 Button {
+                    dismissEditing()
                     onIncrementReps()
                 } label: {
                     Image(systemName: "plus")
