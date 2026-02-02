@@ -84,6 +84,9 @@ struct MainTabView: View {
         .onChange(of: selectedTab) { _, _ in
             HapticManager.tabChanged()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .restTimerNotificationTapped)) { _ in
+            selectedTab = .workout
+        }
     }
 
     // MARK: - Tab Bar Configuration

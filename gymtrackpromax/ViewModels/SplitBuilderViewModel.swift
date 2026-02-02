@@ -150,6 +150,13 @@ struct DraftPlannedExercise: Identifiable, Equatable {
     }
 }
 
+/// Info about an exercise that would lose logged sets if removed
+struct PendingExerciseRemoval: Identifiable {
+    let id = UUID()
+    let exerciseName: String
+    let loggedSetsCount: Int
+}
+
 /// ViewModel for managing split building operations
 @Observable
 @MainActor
@@ -182,6 +189,11 @@ final class SplitBuilderViewModel {
     var errorMessage: String = ""
     var showingDeleteConfirmation: Bool = false
     var showingDiscardConfirmation: Bool = false
+
+    // In-progress session conflict state
+    var pendingRemovals: [PendingExerciseRemoval] = []
+    var showingInProgressConflictAlert: Bool = false
+    private var pendingSaveUser: User?
 
     // MARK: - Initialization
 
@@ -418,6 +430,12 @@ final class SplitBuilderViewModel {
         }
     }
 
+    /// Computed message for the conflict alert
+    var conflictAlertMessage: String {
+        let lines = pendingRemovals.map { "\($0.exerciseName) — \($0.loggedSetsCount) set\($0.loggedSetsCount == 1 ? "" : "s") logged" }
+        return "The following exercises have logged progress in an active workout:\n\n" + lines.joined(separator: "\n") + "\n\nRemoving them will delete that progress."
+    }
+
     // MARK: - Save Split
 
     /// Save the current split configuration
@@ -433,12 +451,29 @@ final class SplitBuilderViewModel {
         }
 
         if isEditingExistingSplit, let splitId = editingSplitId {
-            // Update existing split
+            // Check for in-progress session conflicts before updating
+            let removals = analyzeInProgressSessionConflicts(splitId: splitId)
+            if !removals.isEmpty {
+                pendingRemovals = removals
+                pendingSaveUser = user
+                showingInProgressConflictAlert = true
+                return
+            }
+            // No conflicts, proceed normally
             try updateExistingSplit(id: splitId, name: trimmedName, user: user)
         } else {
             // Create new split
             try createNewSplit(name: trimmedName, user: user)
         }
+    }
+
+    /// Called after user confirms removal of exercises with progress
+    func confirmAndSaveSplit() throws {
+        guard let user = pendingSaveUser, let splitId = editingSplitId else { return }
+        let trimmedName = splitName.trimmingCharacters(in: .whitespacesAndNewlines)
+        pendingRemovals = []
+        pendingSaveUser = nil
+        try updateExistingSplit(id: splitId, name: trimmedName, user: user)
     }
 
     private func createNewSplit(name: String, user: User) throws {
@@ -509,40 +544,46 @@ final class SplitBuilderViewModel {
         split.name = name
         split.splitType = splitType
 
-        // Delete existing workout days (cascade will delete planned exercises)
-        for day in split.workoutDays {
+        let existingDays = split.workoutDays
+        let existingDayById = Dictionary(uniqueKeysWithValues: existingDays.map { ($0.id, $0) })
+        let draftDayIds = Set(workoutDays.map { $0.id })
+        var sessionsSynced = false
+
+        // Remove days that are no longer in the draft
+        for day in existingDays where !draftDayIds.contains(day.id) {
             modelContext.delete(day)
         }
 
-        // Create new workout days
+        // Update or create days
         for draftDay in workoutDays {
-            let workoutDay = WorkoutDay(
-                name: draftDay.name,
-                dayOrder: draftDay.dayOrder,
-                scheduledWeekdays: draftDay.scheduledWeekdays
-            )
-            workoutDay.split = split
-            modelContext.insert(workoutDay)
+            if let existingDay = existingDayById[draftDay.id] {
+                // Update existing day in place
+                existingDay.name = draftDay.name
+                existingDay.dayOrder = draftDay.dayOrder
+                existingDay.scheduledWeekdays = draftDay.scheduledWeekdays
 
-            // Create planned exercises
-            for draftExercise in draftDay.exercises {
-                let exerciseId = draftExercise.exerciseId
-                let descriptor = FetchDescriptor<Exercise>(
-                    predicate: #Predicate<Exercise> { $0.id == exerciseId }
-                )
-                guard let exercise = try? modelContext.fetch(descriptor).first else { continue }
+                // Sync in-progress session if one exists
+                if let session = existingDay.inProgressSession {
+                    syncSessionExerciseLogs(session: session, with: draftDay)
+                    sessionsSynced = true
+                }
 
-                let planned = PlannedExercise(
-                    exerciseOrder: draftExercise.exerciseOrder,
-                    targetSets: draftExercise.targetSets,
-                    targetRepsMin: draftExercise.targetRepsMin,
-                    targetRepsMax: draftExercise.targetRepsMax,
-                    restSeconds: draftExercise.restSeconds,
-                    notes: draftExercise.notes
+                // Replace planned exercises
+                for planned in existingDay.plannedExercises {
+                    modelContext.delete(planned)
+                }
+                createPlannedExercises(for: existingDay, from: draftDay)
+            } else {
+                // Create new day
+                let workoutDay = WorkoutDay(
+                    id: draftDay.id,
+                    name: draftDay.name,
+                    dayOrder: draftDay.dayOrder,
+                    scheduledWeekdays: draftDay.scheduledWeekdays
                 )
-                planned.workoutDay = workoutDay
-                planned.exercise = exercise
-                modelContext.insert(planned)
+                workoutDay.split = split
+                modelContext.insert(workoutDay)
+                createPlannedExercises(for: workoutDay, from: draftDay)
             }
         }
 
@@ -552,8 +593,109 @@ final class SplitBuilderViewModel {
             throw SplitBuilderError.saveFailed(error)
         }
 
+        if sessionsSynced {
+            NotificationCenter.default.post(name: .workoutDayEdited, object: nil)
+        }
+
         // Refresh widgets with updated split data
         WidgetUpdateService.reloadAllTimelines()
+    }
+
+    // MARK: - In-Progress Session Helpers
+
+    /// Analyze which exercises with logged sets would be removed
+    private func analyzeInProgressSessionConflicts(splitId: UUID) -> [PendingExerciseRemoval] {
+        let descriptor = FetchDescriptor<WorkoutSplit>(
+            predicate: #Predicate<WorkoutSplit> { $0.id == splitId }
+        )
+        guard let split = try? modelContext.fetch(descriptor).first else { return [] }
+
+        var removals: [PendingExerciseRemoval] = []
+
+        for draftDay in workoutDays {
+            // Find the matching existing day by ID
+            guard let existingDay = split.workoutDays.first(where: { $0.id == draftDay.id }),
+                  let session = existingDay.inProgressSession else { continue }
+
+            let draftExerciseIds = Set(draftDay.exercises.map { $0.exerciseId })
+
+            for log in session.exerciseLogs {
+                guard let exerciseId = log.exercise?.id else { continue }
+                if !draftExerciseIds.contains(exerciseId) && !log.sets.isEmpty {
+                    removals.append(PendingExerciseRemoval(
+                        exerciseName: log.exerciseName,
+                        loggedSetsCount: log.sets.count
+                    ))
+                }
+            }
+        }
+
+        return removals
+    }
+
+    /// Sync an in-progress session's ExerciseLogs with the edited draft day
+    private func syncSessionExerciseLogs(session: WorkoutSession, with draftDay: DraftWorkoutDay) {
+        // Map existing logs by exercise ID
+        var logsByExerciseId: [UUID: ExerciseLog] = [:]
+        for log in session.exerciseLogs {
+            if let exerciseId = log.exercise?.id {
+                logsByExerciseId[exerciseId] = log
+            }
+        }
+
+        let draftExerciseIds = Set(draftDay.exercises.map { $0.exerciseId })
+
+        // Remove logs for exercises no longer in the draft
+        for log in session.exerciseLogs {
+            if let exerciseId = log.exercise?.id, !draftExerciseIds.contains(exerciseId) {
+                modelContext.delete(log)
+            }
+        }
+
+        // Update order on kept logs and create new logs for added exercises
+        for draftExercise in draftDay.exercises {
+            if let existingLog = logsByExerciseId[draftExercise.exerciseId] {
+                // Update order
+                existingLog.exerciseOrder = draftExercise.exerciseOrder
+            } else {
+                // Create new empty log for newly added exercise
+                let exerciseId = draftExercise.exerciseId
+                let exerciseDescriptor = FetchDescriptor<Exercise>(
+                    predicate: #Predicate<Exercise> { $0.id == exerciseId }
+                )
+                guard let exercise = try? modelContext.fetch(exerciseDescriptor).first else { continue }
+
+                let newLog = ExerciseLog(exerciseOrder: draftExercise.exerciseOrder)
+                newLog.exercise = exercise
+                newLog.session = session
+                session.exerciseLogs.append(newLog)
+                modelContext.insert(newLog)
+            }
+        }
+    }
+
+    /// Create PlannedExercises for a WorkoutDay from a draft
+    private func createPlannedExercises(for workoutDay: WorkoutDay, from draftDay: DraftWorkoutDay) {
+        for draftExercise in draftDay.exercises {
+            let exerciseId = draftExercise.exerciseId
+            let descriptor = FetchDescriptor<Exercise>(
+                predicate: #Predicate<Exercise> { $0.id == exerciseId }
+            )
+            guard let exercise = try? modelContext.fetch(descriptor).first else { continue }
+
+            let planned = PlannedExercise(
+                id: draftExercise.id,
+                exerciseOrder: draftExercise.exerciseOrder,
+                targetSets: draftExercise.targetSets,
+                targetRepsMin: draftExercise.targetRepsMin,
+                targetRepsMax: draftExercise.targetRepsMax,
+                restSeconds: draftExercise.restSeconds,
+                notes: draftExercise.notes
+            )
+            planned.workoutDay = workoutDay
+            planned.exercise = exercise
+            modelContext.insert(planned)
+        }
     }
 
     // MARK: - Split List Operations

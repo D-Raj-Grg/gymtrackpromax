@@ -61,6 +61,39 @@ final class ExerciseService {
         print("ExerciseService: Seeded \(defaultExercises.count) default exercises")
     }
 
+    /// Adds any missing built-in exercises for existing users (e.g., after an app update adds new exercises)
+    func seedMissingExercises(context: ModelContext) async {
+        // Fetch all existing exercise names
+        let descriptor = FetchDescriptor<Exercise>(sortBy: [SortDescriptor(\.name)])
+        let existingExercises = (try? context.fetch(descriptor)) ?? []
+        let existingNames = Set(existingExercises.map { $0.name.lowercased() })
+
+        // Load exercises from JSON
+        var allExercises: [Exercise] = []
+
+        if let url = Bundle.main.url(forResource: "ExerciseData", withExtension: "json"),
+           let data = try? Data(contentsOf: url),
+           let exerciseDataList = try? JSONDecoder().decode([ExerciseData].self, from: data) {
+            allExercises = exerciseDataList.compactMap { $0.toExercise() }
+        } else {
+            allExercises = createDefaultExercises()
+        }
+
+        // Insert any exercises that don't already exist
+        var addedCount = 0
+        for exercise in allExercises {
+            if !existingNames.contains(exercise.name.lowercased()) {
+                context.insert(exercise)
+                addedCount += 1
+            }
+        }
+
+        if addedCount > 0 {
+            try? context.save()
+            print("ExerciseService: Added \(addedCount) missing exercises")
+        }
+    }
+
     // MARK: - Default Exercises
 
     /// Creates default exercise list
@@ -81,6 +114,14 @@ final class ExerciseService {
             Exercise(name: "Chest Press Machine", primaryMuscle: .chest, secondaryMuscles: [.triceps], equipment: .machine),
             Exercise(name: "Pec Deck", primaryMuscle: .chest, secondaryMuscles: [], equipment: .machine),
             Exercise(name: "Push-Up", primaryMuscle: .chest, secondaryMuscles: [.triceps, .shoulders], equipment: .bodyweight),
+            Exercise(name: "Decline Dumbbell Press", primaryMuscle: .chest, secondaryMuscles: [.triceps], equipment: .dumbbell),
+            Exercise(name: "Dumbbell Floor Press", primaryMuscle: .chest, secondaryMuscles: [.triceps], equipment: .dumbbell),
+            Exercise(name: "Dumbbell Pullover", primaryMuscle: .chest, secondaryMuscles: [.back], equipment: .dumbbell),
+            Exercise(name: "Smith Machine Bench Press", primaryMuscle: .chest, secondaryMuscles: [.triceps, .shoulders], equipment: .smithMachine),
+            Exercise(name: "Smith Machine Incline Bench Press", primaryMuscle: .chest, secondaryMuscles: [.triceps, .shoulders], equipment: .smithMachine),
+            Exercise(name: "Decline Push-Up", primaryMuscle: .chest, secondaryMuscles: [.shoulders, .triceps], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Low Cable Fly", primaryMuscle: .chest, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Single-Arm Cable Fly", primaryMuscle: .chest, secondaryMuscles: [], equipment: .cable),
         ])
 
         // MARK: Back Exercises
@@ -97,6 +138,17 @@ final class ExerciseService {
             Exercise(name: "T-Bar Row", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .barbell),
             Exercise(name: "Chest Supported Row", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .dumbbell),
             Exercise(name: "Face Pull", primaryMuscle: .back, secondaryMuscles: [.shoulders], equipment: .cable),
+            Exercise(name: "Rack Pull", primaryMuscle: .back, secondaryMuscles: [.glutes, .hamstrings], equipment: .barbell),
+            Exercise(name: "Inverted Row", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Seal Row", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .dumbbell),
+            Exercise(name: "Meadows Row", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .barbell),
+            Exercise(name: "Back Extension", primaryMuscle: .back, secondaryMuscles: [.glutes, .hamstrings], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Neutral-Grip Lat Pulldown", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .cable),
+            Exercise(name: "Single-Arm Lat Pulldown", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .cable),
+            Exercise(name: "Single-Arm Cable Row", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .cable),
+            Exercise(name: "Smith Machine Row", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .smithMachine),
+            Exercise(name: "Rope Pulldown", primaryMuscle: .back, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Iliac Pulldown", primaryMuscle: .back, secondaryMuscles: [.biceps], equipment: .cable),
         ])
 
         // MARK: Shoulder Exercises
@@ -111,6 +163,17 @@ final class ExerciseService {
             Exercise(name: "Cable Reverse Fly", primaryMuscle: .shoulders, secondaryMuscles: [.back], equipment: .cable),
             Exercise(name: "Upright Row", primaryMuscle: .shoulders, secondaryMuscles: [.biceps], equipment: .barbell),
             Exercise(name: "Shrugs", primaryMuscle: .shoulders, secondaryMuscles: [], equipment: .dumbbell),
+            Exercise(name: "Barbell Shrugs", primaryMuscle: .shoulders, secondaryMuscles: [], equipment: .barbell),
+            Exercise(name: "Machine Shoulder Press", primaryMuscle: .shoulders, secondaryMuscles: [.triceps], equipment: .machine),
+            Exercise(name: "Machine Lateral Raise", primaryMuscle: .shoulders, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Reverse Machine Fly", primaryMuscle: .shoulders, secondaryMuscles: [.back], equipment: .machine),
+            Exercise(name: "Landmine Press", primaryMuscle: .shoulders, secondaryMuscles: [.triceps], equipment: .barbell),
+            Exercise(name: "Behind the Neck Press", primaryMuscle: .shoulders, secondaryMuscles: [.triceps], equipment: .barbell),
+            Exercise(name: "Cable Front Raise", primaryMuscle: .shoulders, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Dumbbell Rear Delt Row", primaryMuscle: .shoulders, secondaryMuscles: [.back], equipment: .dumbbell),
+            Exercise(name: "Smith Machine Shoulder Press", primaryMuscle: .shoulders, secondaryMuscles: [.triceps], equipment: .smithMachine),
+            Exercise(name: "Smith Machine Shrugs", primaryMuscle: .shoulders, secondaryMuscles: [], equipment: .smithMachine),
+            Exercise(name: "Push Press", primaryMuscle: .shoulders, secondaryMuscles: [.triceps], equipment: .barbell),
         ])
 
         // MARK: Biceps Exercises
@@ -123,6 +186,15 @@ final class ExerciseService {
             Exercise(name: "Concentration Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .dumbbell),
             Exercise(name: "Preacher Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .ezBar),
             Exercise(name: "Cable Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Spider Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .dumbbell),
+            Exercise(name: "Drag Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .barbell),
+            Exercise(name: "Zottman Curl", primaryMuscle: .biceps, secondaryMuscles: [.forearms], equipment: .dumbbell),
+            Exercise(name: "Reverse Barbell Curl", primaryMuscle: .biceps, secondaryMuscles: [.forearms], equipment: .barbell),
+            Exercise(name: "Machine Bicep Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Cable Rope Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Overhead Cable Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Cross-Body Hammer Curl", primaryMuscle: .biceps, secondaryMuscles: [.forearms], equipment: .dumbbell),
+            Exercise(name: "Bayesian Curl", primaryMuscle: .biceps, secondaryMuscles: [], equipment: .cable),
         ])
 
         // MARK: Triceps Exercises
@@ -135,6 +207,13 @@ final class ExerciseService {
             Exercise(name: "Cable Overhead Extension", primaryMuscle: .triceps, secondaryMuscles: [], equipment: .cable),
             Exercise(name: "Dips", primaryMuscle: .triceps, secondaryMuscles: [.chest, .shoulders], equipment: .bodyweight),
             Exercise(name: "Diamond Push-Up", primaryMuscle: .triceps, secondaryMuscles: [.chest], equipment: .bodyweight),
+            Exercise(name: "Tricep Kickback", primaryMuscle: .triceps, secondaryMuscles: [], equipment: .dumbbell),
+            Exercise(name: "Bench Dip", primaryMuscle: .triceps, secondaryMuscles: [.chest], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Dumbbell Skull Crusher", primaryMuscle: .triceps, secondaryMuscles: [], equipment: .dumbbell),
+            Exercise(name: "Single-Arm Cable Pushdown", primaryMuscle: .triceps, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Machine Tricep Extension", primaryMuscle: .triceps, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Tate Press", primaryMuscle: .triceps, secondaryMuscles: [], equipment: .dumbbell),
+            Exercise(name: "EZ Bar Overhead Extension", primaryMuscle: .triceps, secondaryMuscles: [], equipment: .ezBar),
         ])
 
         // MARK: Quad Exercises
@@ -148,6 +227,19 @@ final class ExerciseService {
             Exercise(name: "Goblet Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .dumbbell),
             Exercise(name: "Walking Lunge", primaryMuscle: .quads, secondaryMuscles: [.glutes, .hamstrings], equipment: .dumbbell),
             Exercise(name: "Sissy Squat", primaryMuscle: .quads, secondaryMuscles: [], equipment: .bodyweight),
+            Exercise(name: "Smith Machine Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes, .hamstrings], equipment: .smithMachine),
+            Exercise(name: "Wall Sit", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .bodyweight, exerciseType: .duration),
+            Exercise(name: "Pendulum Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .machine),
+            Exercise(name: "Belt Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .machine),
+            Exercise(name: "Zercher Squat", primaryMuscle: .quads, secondaryMuscles: [.abs], equipment: .barbell),
+            Exercise(name: "Pistol Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Box Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes, .hamstrings], equipment: .barbell),
+            Exercise(name: "Barbell Lunge", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .barbell),
+            Exercise(name: "Reverse Lunge", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .dumbbell),
+            Exercise(name: "Jump Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Landmine Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .barbell),
+            Exercise(name: "Single-Leg Leg Extension", primaryMuscle: .quads, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Kettlebell Goblet Squat", primaryMuscle: .quads, secondaryMuscles: [.glutes], equipment: .kettlebell),
         ])
 
         // MARK: Hamstring Exercises
@@ -159,6 +251,12 @@ final class ExerciseService {
             Exercise(name: "Good Morning", primaryMuscle: .hamstrings, secondaryMuscles: [.glutes, .back], equipment: .barbell),
             Exercise(name: "Dumbbell RDL", primaryMuscle: .hamstrings, secondaryMuscles: [.glutes], equipment: .dumbbell),
             Exercise(name: "Nordic Hamstring Curl", primaryMuscle: .hamstrings, secondaryMuscles: [], equipment: .bodyweight),
+            Exercise(name: "Single-Leg RDL", primaryMuscle: .hamstrings, secondaryMuscles: [.glutes], equipment: .dumbbell),
+            Exercise(name: "Glute Ham Raise", primaryMuscle: .hamstrings, secondaryMuscles: [.glutes], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Standing Leg Curl", primaryMuscle: .hamstrings, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Single-Leg Lying Leg Curl", primaryMuscle: .hamstrings, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Cable Pull Through", primaryMuscle: .hamstrings, secondaryMuscles: [.glutes], equipment: .cable),
+            Exercise(name: "Kettlebell Single-Leg RDL", primaryMuscle: .hamstrings, secondaryMuscles: [.glutes], equipment: .kettlebell),
         ])
 
         // MARK: Glute Exercises
@@ -169,6 +267,16 @@ final class ExerciseService {
             Exercise(name: "Hip Abduction Machine", primaryMuscle: .glutes, secondaryMuscles: [], equipment: .machine),
             Exercise(name: "Sumo Deadlift", primaryMuscle: .glutes, secondaryMuscles: [.quads, .hamstrings], equipment: .barbell),
             Exercise(name: "Step-Up", primaryMuscle: .glutes, secondaryMuscles: [.quads], equipment: .dumbbell),
+            Exercise(name: "Frog Pump", primaryMuscle: .glutes, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Kettlebell Swing", primaryMuscle: .glutes, secondaryMuscles: [.hamstrings, .back], equipment: .kettlebell),
+            Exercise(name: "Hip Thrust Machine", primaryMuscle: .glutes, secondaryMuscles: [.hamstrings], equipment: .machine),
+            Exercise(name: "Smith Machine Hip Thrust", primaryMuscle: .glutes, secondaryMuscles: [.hamstrings], equipment: .smithMachine),
+            Exercise(name: "Single-Leg Hip Thrust", primaryMuscle: .glutes, secondaryMuscles: [.hamstrings], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Single-Leg Glute Bridge", primaryMuscle: .glutes, secondaryMuscles: [.hamstrings], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Reverse Hyperextension", primaryMuscle: .glutes, secondaryMuscles: [.hamstrings], equipment: .machine),
+            Exercise(name: "Cossack Squat", primaryMuscle: .glutes, secondaryMuscles: [.quads], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Lateral Band Walk", primaryMuscle: .glutes, secondaryMuscles: [], equipment: .resistanceBand, exerciseType: .repsOnly),
+            Exercise(name: "Machine Glute Kickback", primaryMuscle: .glutes, secondaryMuscles: [], equipment: .machine),
         ])
 
         // MARK: Calf Exercises
@@ -178,6 +286,9 @@ final class ExerciseService {
             Exercise(name: "Leg Press Calf Raise", primaryMuscle: .calves, secondaryMuscles: [], equipment: .machine),
             Exercise(name: "Smith Machine Calf Raise", primaryMuscle: .calves, secondaryMuscles: [], equipment: .smithMachine),
             Exercise(name: "Single-Leg Calf Raise", primaryMuscle: .calves, secondaryMuscles: [], equipment: .bodyweight),
+            Exercise(name: "Donkey Calf Raise", primaryMuscle: .calves, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Barbell Calf Raise", primaryMuscle: .calves, secondaryMuscles: [], equipment: .barbell),
+            Exercise(name: "Tibialis Raise", primaryMuscle: .calves, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .repsOnly),
         ])
 
         // MARK: Abs Exercises
@@ -192,13 +303,38 @@ final class ExerciseService {
             Exercise(name: "Leg Raise", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight),
             Exercise(name: "Mountain Climber", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight),
             Exercise(name: "Dead Bug", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight),
+            Exercise(name: "Decline Sit-Up", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Pallof Press", primaryMuscle: .abs, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Side Plank", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .duration),
+            Exercise(name: "L-Sit", primaryMuscle: .abs, secondaryMuscles: [.quads], equipment: .bodyweight, exerciseType: .duration),
+            Exercise(name: "Suitcase Carry", primaryMuscle: .abs, secondaryMuscles: [.forearms, .shoulders], equipment: .dumbbell, exerciseType: .weightAndDuration),
+            Exercise(name: "Hanging Knee Raise", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Cable Wood Chop", primaryMuscle: .abs, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Hollow Hold", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .duration),
+            Exercise(name: "Dragon Flag", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Dumbbell Side Bend", primaryMuscle: .abs, secondaryMuscles: [], equipment: .dumbbell),
+            Exercise(name: "Machine Crunch", primaryMuscle: .abs, secondaryMuscles: [], equipment: .machine),
+            Exercise(name: "Oblique Crunch", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Sit-Up", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .repsOnly),
+            Exercise(name: "Weighted Plank", primaryMuscle: .abs, secondaryMuscles: [], equipment: .bodyweight, exerciseType: .duration),
+            Exercise(name: "Landmine Rotation", primaryMuscle: .abs, secondaryMuscles: [], equipment: .barbell),
         ])
 
         // MARK: Forearm Exercises
         exercises.append(contentsOf: [
             Exercise(name: "Wrist Curl", primaryMuscle: .forearms, secondaryMuscles: [], equipment: .barbell),
             Exercise(name: "Reverse Wrist Curl", primaryMuscle: .forearms, secondaryMuscles: [], equipment: .barbell),
-            Exercise(name: "Farmer's Walk", primaryMuscle: .forearms, secondaryMuscles: [.shoulders], equipment: .dumbbell),
+            Exercise(name: "Farmer's Walk", primaryMuscle: .forearms, secondaryMuscles: [.shoulders], equipment: .dumbbell, exerciseType: .weightAndDuration),
+            Exercise(name: "Dumbbell Wrist Curl", primaryMuscle: .forearms, secondaryMuscles: [], equipment: .dumbbell),
+            Exercise(name: "Dead Hang", primaryMuscle: .forearms, secondaryMuscles: [.back], equipment: .bodyweight, exerciseType: .duration),
+            Exercise(name: "Plate Pinch Hold", primaryMuscle: .forearms, secondaryMuscles: [], equipment: .dumbbell, exerciseType: .duration),
+        ])
+
+        // MARK: Miscellaneous
+        exercises.append(contentsOf: [
+            Exercise(name: "Straight-Arm Pulldown", primaryMuscle: .back, secondaryMuscles: [], equipment: .cable),
+            Exercise(name: "Trap Bar Deadlift", primaryMuscle: .back, secondaryMuscles: [.quads, .glutes, .hamstrings], equipment: .trapBar),
+            Exercise(name: "Kettlebell Turkish Get-Up", primaryMuscle: .shoulders, secondaryMuscles: [.abs], equipment: .kettlebell),
         ])
 
         return exercises

@@ -179,8 +179,8 @@
   },
   {
     "name": "Dead Hang",
-    "primaryMuscle": "back",
-    "secondaryMuscles": ["forearms"],
+    "primaryMuscle": "forearms",
+    "secondaryMuscles": ["back"],
     "equipment": "bodyweight",
     "exerciseType": "duration",
     "instructions": "Hang from bar with straight arms, engage shoulders, hold for time."
@@ -787,5 +787,584 @@
     "secondaryMuscles": ["abs"],
     "equipment": "kettlebell",
     "instructions": "Lie down with kettlebell extended, stand up while keeping arm vertical."
+  },
+  {
+    "name": "Decline Dumbbell Press",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": ["triceps"],
+    "equipment": "dumbbell",
+    "instructions": "Set bench to decline, press dumbbells from chest to full extension."
+  },
+  {
+    "name": "Dumbbell Floor Press",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": ["triceps"],
+    "equipment": "dumbbell",
+    "instructions": "Lie on floor with dumbbells, press up stopping when elbows touch ground."
+  },
+  {
+    "name": "Dumbbell Pullover",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": ["back"],
+    "equipment": "dumbbell",
+    "instructions": "Lie on bench, hold dumbbell overhead, lower behind head in arc, pull back over chest."
+  },
+  {
+    "name": "Smith Machine Bench Press",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": ["triceps", "shoulders"],
+    "equipment": "smithMachine",
+    "instructions": "Lie on flat bench under Smith machine, unrack bar, lower to chest, press up."
+  },
+  {
+    "name": "Smith Machine Incline Bench Press",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": ["triceps", "shoulders"],
+    "equipment": "smithMachine",
+    "instructions": "Set bench to 30-45 degrees under Smith machine, lower bar to upper chest, press up."
+  },
+  {
+    "name": "Decline Push-Up",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": ["shoulders", "triceps"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Feet elevated on bench, hands on floor, perform push-up targeting upper chest."
+  },
+  {
+    "name": "Low Cable Fly",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Set cables low, bring handles up and together in front of chest targeting upper chest."
+  },
+  {
+    "name": "Single-Arm Cable Fly",
+    "primaryMuscle": "chest",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Stand sideways to cable, bring single handle across body squeezing chest."
+  },
+  {
+    "name": "Rack Pull",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["glutes", "hamstrings"],
+    "equipment": "barbell",
+    "instructions": "Set barbell at knee height in rack, grip and stand up focusing on upper back."
+  },
+  {
+    "name": "Inverted Row",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Hang under bar with body straight, pull chest to bar, lower with control."
+  },
+  {
+    "name": "Seal Row",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "dumbbell",
+    "instructions": "Lie face down on elevated bench, row dumbbells from full hang to sides."
+  },
+  {
+    "name": "Meadows Row",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "barbell",
+    "instructions": "Stand perpendicular to landmine, row with one arm pulling to hip."
+  },
+  {
+    "name": "Back Extension",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["glutes", "hamstrings"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Lock feet in hyperextension bench, lower torso, extend back up to straight."
+  },
+  {
+    "name": "Neutral-Grip Lat Pulldown",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "cable",
+    "instructions": "Use neutral-grip handle, pull to upper chest, squeeze lats."
+  },
+  {
+    "name": "Single-Arm Lat Pulldown",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "cable",
+    "instructions": "Use single handle, pull down to shoulder with one arm, focus on lat stretch."
+  },
+  {
+    "name": "Single-Arm Cable Row",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "cable",
+    "instructions": "Stand or sit at cable station, row with one arm to hip."
+  },
+  {
+    "name": "Smith Machine Row",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "smithMachine",
+    "instructions": "Bend over in Smith machine, row bar to lower chest with controlled path."
+  },
+  {
+    "name": "Rope Pulldown",
+    "primaryMuscle": "back",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Keep arms straight, pull rope down to thighs focusing on lat contraction."
+  },
+  {
+    "name": "Iliac Pulldown",
+    "primaryMuscle": "back",
+    "secondaryMuscles": ["biceps"],
+    "equipment": "cable",
+    "instructions": "Lean back slightly, pull cable handle to hip level targeting lower lats with full stretch at top."
+  },
+  {
+    "name": "Machine Shoulder Press",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": ["triceps"],
+    "equipment": "machine",
+    "instructions": "Sit with back supported, press handles overhead until arms are extended."
+  },
+  {
+    "name": "Machine Lateral Raise",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Sit with arms against pads, raise to shoulder height."
+  },
+  {
+    "name": "Reverse Machine Fly",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": ["back"],
+    "equipment": "machine",
+    "instructions": "Sit facing pec deck, push handles apart squeezing rear delts."
+  },
+  {
+    "name": "Landmine Press",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": ["triceps"],
+    "equipment": "barbell",
+    "instructions": "Hold end of barbell at shoulder, press up and forward."
+  },
+  {
+    "name": "Behind the Neck Press",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": ["triceps"],
+    "equipment": "barbell",
+    "instructions": "Lower bar behind head to ear level, press back up. Requires good shoulder mobility."
+  },
+  {
+    "name": "Cable Front Raise",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Face away from low cable, raise handle to shoulder height in front."
+  },
+  {
+    "name": "Dumbbell Rear Delt Row",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": ["back"],
+    "equipment": "dumbbell",
+    "instructions": "Bend over, row dumbbells with elbows flared wide to target rear delts."
+  },
+  {
+    "name": "Smith Machine Shoulder Press",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": ["triceps"],
+    "equipment": "smithMachine",
+    "instructions": "Sit under Smith machine, press bar overhead along guided path."
+  },
+  {
+    "name": "Smith Machine Shrugs",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": [],
+    "equipment": "smithMachine",
+    "instructions": "Hold Smith machine bar at thighs, shrug shoulders up toward ears."
+  },
+  {
+    "name": "Push Press",
+    "primaryMuscle": "shoulders",
+    "secondaryMuscles": ["triceps"],
+    "equipment": "barbell",
+    "instructions": "Slight knee dip then explosively press barbell overhead using leg drive."
+  },
+  {
+    "name": "Drag Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": [],
+    "equipment": "barbell",
+    "instructions": "Curl bar keeping it close to body, drag up along torso with elbows back."
+  },
+  {
+    "name": "Zottman Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": ["forearms"],
+    "equipment": "dumbbell",
+    "instructions": "Curl up with palms up, rotate to palms down at top, lower slowly."
+  },
+  {
+    "name": "Reverse Barbell Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": ["forearms"],
+    "equipment": "barbell",
+    "instructions": "Grip bar overhand, curl to shoulders keeping wrists straight."
+  },
+  {
+    "name": "Machine Bicep Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Sit with arms on pad, curl handles toward shoulders."
+  },
+  {
+    "name": "Cable Rope Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Attach rope to low cable, curl with neutral grip, spread rope at top."
+  },
+  {
+    "name": "Overhead Cable Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Stand between high cables, curl handles toward head with arms extended."
+  },
+  {
+    "name": "Cross-Body Hammer Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": ["forearms"],
+    "equipment": "dumbbell",
+    "instructions": "Curl dumbbell across body toward opposite shoulder with neutral grip."
+  },
+  {
+    "name": "Bayesian Curl",
+    "primaryMuscle": "biceps",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Face away from low cable, arm behind body, curl handle forward."
+  },
+  {
+    "name": "Bench Dip",
+    "primaryMuscle": "triceps",
+    "secondaryMuscles": ["chest"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Hands on bench behind you, lower body by bending elbows, press back up."
+  },
+  {
+    "name": "Dumbbell Skull Crusher",
+    "primaryMuscle": "triceps",
+    "secondaryMuscles": [],
+    "equipment": "dumbbell",
+    "instructions": "Lie on bench, lower dumbbells to sides of forehead, extend back up."
+  },
+  {
+    "name": "Single-Arm Cable Pushdown",
+    "primaryMuscle": "triceps",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Use single handle, push down with one arm keeping elbow at side."
+  },
+  {
+    "name": "Machine Tricep Extension",
+    "primaryMuscle": "triceps",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Sit with elbows on pad, extend arms until straight."
+  },
+  {
+    "name": "Tate Press",
+    "primaryMuscle": "triceps",
+    "secondaryMuscles": [],
+    "equipment": "dumbbell",
+    "instructions": "Lie on bench, start with dumbbells extended, lower to chest by bending elbows inward, press up."
+  },
+  {
+    "name": "EZ Bar Overhead Extension",
+    "primaryMuscle": "triceps",
+    "secondaryMuscles": [],
+    "equipment": "ezBar",
+    "instructions": "Hold EZ bar overhead, lower behind head by bending elbows, extend back up."
+  },
+  {
+    "name": "Pendulum Squat",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "machine",
+    "instructions": "Stand on platform, shoulders under pads, squat through pendulum arc."
+  },
+  {
+    "name": "Belt Squat",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "machine",
+    "instructions": "Attach belt to weight, stand on platforms, squat with no spinal load."
+  },
+  {
+    "name": "Zercher Squat",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["abs"],
+    "equipment": "barbell",
+    "instructions": "Hold barbell in crook of elbows, squat keeping torso upright."
+  },
+  {
+    "name": "Pistol Squat",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Stand on one leg, squat down with other leg extended forward, stand back up."
+  },
+  {
+    "name": "Box Squat",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes", "hamstrings"],
+    "equipment": "barbell",
+    "instructions": "Squat to a box behind you, pause briefly, drive back up."
+  },
+  {
+    "name": "Barbell Lunge",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "barbell",
+    "instructions": "Bar on upper back, step forward into lunge, drive back up."
+  },
+  {
+    "name": "Reverse Lunge",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "dumbbell",
+    "instructions": "Hold dumbbells, step backward into lunge, drive forward to stand."
+  },
+  {
+    "name": "Jump Squat",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Squat down then explosively jump, land softly and repeat."
+  },
+  {
+    "name": "Landmine Squat",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "barbell",
+    "instructions": "Hold end of landmine barbell at chest, squat down and drive up."
+  },
+  {
+    "name": "Single-Leg Leg Extension",
+    "primaryMuscle": "quads",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Perform leg extension one leg at a time to address imbalances."
+  },
+  {
+    "name": "Glute Ham Raise",
+    "primaryMuscle": "hamstrings",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Lock feet in GHD, lower torso forward, curl back up using hamstrings."
+  },
+  {
+    "name": "Standing Leg Curl",
+    "primaryMuscle": "hamstrings",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Stand on one leg, curl other leg against pad toward glutes."
+  },
+  {
+    "name": "Single-Leg Lying Leg Curl",
+    "primaryMuscle": "hamstrings",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Lie face down, curl one leg at a time for unilateral hamstring work."
+  },
+  {
+    "name": "Cable Pull Through",
+    "primaryMuscle": "hamstrings",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "cable",
+    "instructions": "Face away from low cable, hinge at hips, pull cable through legs by extending hips."
+  },
+  {
+    "name": "Kettlebell Single-Leg RDL",
+    "primaryMuscle": "hamstrings",
+    "secondaryMuscles": ["glutes"],
+    "equipment": "kettlebell",
+    "instructions": "Hold kettlebell, balance on one leg, hinge forward extending other leg back."
+  },
+  {
+    "name": "Hip Thrust Machine",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": ["hamstrings"],
+    "equipment": "machine",
+    "instructions": "Sit in machine, drive hips up against pad, squeeze glutes at top."
+  },
+  {
+    "name": "Smith Machine Hip Thrust",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": ["hamstrings"],
+    "equipment": "smithMachine",
+    "instructions": "Upper back on bench, bar across hips in Smith machine, drive hips up."
+  },
+  {
+    "name": "Single-Leg Hip Thrust",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": ["hamstrings"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Upper back on bench, extend one leg, thrust hips up on single leg."
+  },
+  {
+    "name": "Single-Leg Glute Bridge",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": ["hamstrings"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Lie on back, extend one leg, drive hips up on single leg."
+  },
+  {
+    "name": "Reverse Hyperextension",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": ["hamstrings"],
+    "equipment": "machine",
+    "instructions": "Lie face down on machine, raise legs behind you squeezing glutes."
+  },
+  {
+    "name": "Cossack Squat",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": ["quads"],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Wide stance, shift weight to one side squatting deep, alternate sides."
+  },
+  {
+    "name": "Lateral Band Walk",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": [],
+    "equipment": "resistanceBand",
+    "exerciseType": "repsOnly",
+    "instructions": "Band around legs, half squat position, step sideways maintaining tension."
+  },
+  {
+    "name": "Machine Glute Kickback",
+    "primaryMuscle": "glutes",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Stand in machine, kick one leg back against pad squeezing glute."
+  },
+  {
+    "name": "Barbell Calf Raise",
+    "primaryMuscle": "calves",
+    "secondaryMuscles": [],
+    "equipment": "barbell",
+    "instructions": "Bar on upper back, stand on edge of platform, raise and lower heels."
+  },
+  {
+    "name": "Tibialis Raise",
+    "primaryMuscle": "calves",
+    "secondaryMuscles": [],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Lean back against wall, raise toes toward shins to strengthen tibialis."
+  },
+  {
+    "name": "Hanging Knee Raise",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Hang from bar, raise knees to chest with control, lower slowly."
+  },
+  {
+    "name": "Cable Wood Chop",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "cable",
+    "instructions": "Stand sideways to cable set high, chop diagonally across body rotating torso."
+  },
+  {
+    "name": "Hollow Hold",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "bodyweight",
+    "exerciseType": "duration",
+    "instructions": "Lie on back, lift shoulders and legs off ground, hold hollow body position."
+  },
+  {
+    "name": "Dragon Flag",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Lie on bench gripping behind head, raise body straight, lower with control."
+  },
+  {
+    "name": "Dumbbell Side Bend",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "dumbbell",
+    "instructions": "Hold dumbbell in one hand, bend sideways, return to upright."
+  },
+  {
+    "name": "Machine Crunch",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "machine",
+    "instructions": "Sit in machine, crunch forward against resistance, control the return."
+  },
+  {
+    "name": "Oblique Crunch",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Lie on side, crunch up bringing shoulder toward hip."
+  },
+  {
+    "name": "Sit-Up",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "bodyweight",
+    "exerciseType": "repsOnly",
+    "instructions": "Lie on back with knees bent, sit all the way up, lower with control."
+  },
+  {
+    "name": "Weighted Plank",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "bodyweight",
+    "exerciseType": "duration",
+    "instructions": "Hold plank position with weight plate on back for added resistance."
+  },
+  {
+    "name": "Landmine Rotation",
+    "primaryMuscle": "abs",
+    "secondaryMuscles": [],
+    "equipment": "barbell",
+    "instructions": "Hold end of landmine barbell, rotate from side to side with arms extended."
+  },
+  {
+    "name": "Dumbbell Wrist Curl",
+    "primaryMuscle": "forearms",
+    "secondaryMuscles": [],
+    "equipment": "dumbbell",
+    "instructions": "Rest forearm on thigh, palm up, curl dumbbell with wrist."
+  },
+  {
+    "name": "Plate Pinch Hold",
+    "primaryMuscle": "forearms",
+    "secondaryMuscles": [],
+    "equipment": "dumbbell",
+    "exerciseType": "duration",
+    "instructions": "Pinch weight plates together with fingers, hold for time."
   }
 ]

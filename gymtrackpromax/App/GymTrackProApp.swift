@@ -7,10 +7,15 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 import WidgetKit
 
 @main
 struct GymTrackProApp: App {
+    // MARK: - Notification Delegate
+
+    private let notificationDelegate = NotificationDelegate()
+
     // MARK: - SwiftData Container
 
     var sharedModelContainer: ModelContainer = {
@@ -30,6 +35,12 @@ struct GymTrackProApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     // MARK: - Body
+
+    // MARK: - Initialization
+
+    init() {
+        UNUserNotificationCenter.current().delegate = notificationDelegate
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -67,6 +78,9 @@ struct GymTrackProApp: App {
         if existingCount == 0 {
             // Seed exercises from JSON - await completion before continuing
             await ExerciseService.shared.seedExercises(context: context)
+        } else {
+            // Add any new built-in exercises that were added in app updates
+            await ExerciseService.shared.seedMissingExercises(context: context)
         }
     }
 }

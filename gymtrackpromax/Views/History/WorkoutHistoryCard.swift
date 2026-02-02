@@ -14,6 +14,7 @@ struct WorkoutHistoryCard: View {
 
     let session: WorkoutSession
     let weightUnit: WeightUnit
+    var hasPR: Bool = false
 
     // MARK: - State
 
@@ -25,11 +26,19 @@ struct WorkoutHistoryCard: View {
         HStack(spacing: AppSpacing.component) {
             // Left content
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                // Workout name
-                Text(session.workoutName)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color.gymText)
+                // Workout name with PR badge
+                HStack(spacing: AppSpacing.small) {
+                    Text(session.workoutName)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.gymText)
+
+                    if hasPR {
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.gymWarning)
+                    }
+                }
 
                 // Date
                 Text(formattedDate)
@@ -115,7 +124,6 @@ struct WorkoutHistoryCard: View {
         Color.gymBackground.ignoresSafeArea()
 
         VStack(spacing: AppSpacing.component) {
-            // Create sample session for preview
             WorkoutHistoryCard(
                 session: {
                     let session = WorkoutSession(
@@ -124,7 +132,8 @@ struct WorkoutHistoryCard: View {
                     )
                     return session
                 }(),
-                weightUnit: .kg
+                weightUnit: .kg,
+                hasPR: true
             )
 
             WorkoutHistoryCard(

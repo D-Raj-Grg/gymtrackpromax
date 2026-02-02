@@ -21,6 +21,19 @@ final class HistoryViewModel {
     var selectedMonth: Date = Date()
     var isLoading: Bool = false
 
+    // Search & Filter
+    var searchText: String = ""
+    var selectedMuscleFilter: MuscleGroup? = nil
+
+    // Pagination
+    var displayedSessions: [WorkoutSession] = []
+    var hasMoreData: Bool = false
+    private var currentPage: Int = 0
+    private let pageSize: Int = 20
+
+    // PR detection
+    var sessionsWithPRs: Set<UUID> = []
+
     // Cached data
     private var cachedSessions: [WorkoutSession] = []
     private var maxMonthlyVolume: Double = 0
@@ -61,9 +74,43 @@ final class HistoryViewModel {
         do {
             cachedSessions = try modelContext.fetch(descriptor)
             calculateMaxVolume()
+            detectSessionPRs()
+            resetPagination()
         } catch {
             print("Error fetching sessions for month: \(error)")
             cachedSessions = []
+        }
+    }
+
+    /// Detect which sessions contain PRs
+    private func detectSessionPRs() {
+        sessionsWithPRs.removeAll()
+
+        // Fetch all completed sessions chronologically
+        let allPredicate = #Predicate<WorkoutSession> { session in
+            session.endTime != nil
+        }
+        let allDescriptor = FetchDescriptor<WorkoutSession>(
+            predicate: allPredicate,
+            sortBy: [SortDescriptor(\.startTime)]
+        )
+
+        guard let allSessions = try? modelContext.fetch(allDescriptor) else { return }
+
+        var exerciseBests: [UUID: Double] = [:]
+
+        for session in allSessions {
+            for log in session.exerciseLogs {
+                guard let exercise = log.exercise else { continue }
+
+                for set in log.workingSetsArray {
+                    let currentBest = exerciseBests[exercise.id] ?? 0
+                    if set.estimated1RM > currentBest {
+                        exerciseBests[exercise.id] = set.estimated1RM
+                        sessionsWithPRs.insert(session.id)
+                    }
+                }
+            }
         }
     }
 
@@ -78,6 +125,79 @@ final class HistoryViewModel {
         }
 
         maxMonthlyVolume = volumeByDay.values.max() ?? 0
+    }
+
+    // MARK: - Pagination
+
+    private func resetPagination() {
+        currentPage = 0
+        let allFiltered = applyFilters(cachedSessions.filter { $0.isCompleted })
+        displayedSessions = Array(allFiltered.prefix(pageSize))
+        hasMoreData = allFiltered.count > pageSize
+    }
+
+    /// Load more sessions for infinite scroll
+    func loadMoreSessions() {
+        guard hasMoreData, selectedDate == nil else { return }
+
+        currentPage += 1
+        let allFiltered = applyFilters(cachedSessions.filter { $0.isCompleted })
+        let startIndex = currentPage * pageSize
+        guard startIndex < allFiltered.count else {
+            hasMoreData = false
+            return
+        }
+        let endIndex = min(startIndex + pageSize, allFiltered.count)
+        displayedSessions.append(contentsOf: allFiltered[startIndex..<endIndex])
+        hasMoreData = endIndex < allFiltered.count
+    }
+
+    // MARK: - Search & Filter
+
+    /// Apply search and muscle filter to sessions
+    private func applyFilters(_ sessions: [WorkoutSession]) -> [WorkoutSession] {
+        var result = sessions
+
+        // Text search
+        if !searchText.isEmpty {
+            let query = searchText.lowercased()
+            result = result.filter { session in
+                session.exerciseLogs.contains { log in
+                    log.exerciseName.lowercased().contains(query)
+                }
+            }
+        }
+
+        // Muscle group filter
+        if let muscle = selectedMuscleFilter {
+            result = result.filter { session in
+                session.exerciseLogs.contains { log in
+                    log.exercise?.primaryMuscle == muscle
+                }
+            }
+        }
+
+        return result
+    }
+
+    /// Get filtered sessions based on search, filter, and date selection
+    func filteredSessions() -> [WorkoutSession] {
+        if let selectedDate = selectedDate {
+            let dayFiltered = workoutsForDate(selectedDate)
+            return applyFilters(dayFiltered)
+        }
+
+        // When using search/filter, re-apply to all cached
+        if !searchText.isEmpty || selectedMuscleFilter != nil {
+            return applyFilters(cachedSessions.filter { $0.isCompleted })
+        }
+
+        return displayedSessions
+    }
+
+    /// Called when search text or filter changes
+    func onFilterChanged() {
+        resetPagination()
     }
 
     // MARK: - Public Accessors
@@ -105,14 +225,6 @@ final class HistoryViewModel {
         }
     }
 
-    /// Get all completed sessions, optionally filtered by selected date
-    func filteredSessions() -> [WorkoutSession] {
-        if let selectedDate = selectedDate {
-            return workoutsForDate(selectedDate)
-        }
-        return cachedSessions.filter { $0.isCompleted }
-    }
-
     /// Calculate workout intensity for a specific date (0-1 scale)
     func workoutIntensity(for date: Date) -> Double {
         guard maxMonthlyVolume > 0 else { return 0 }
@@ -123,7 +235,6 @@ final class HistoryViewModel {
         let totalVolume = sessions.reduce(0) { $0 + $1.totalVolume }
 
         // Return intensity between 0.3 and 1.0 for any workout day
-        // This ensures even light workouts are visible
         let normalizedIntensity = totalVolume / maxMonthlyVolume
         return 0.3 + (normalizedIntensity * 0.7)
     }
@@ -146,8 +257,8 @@ final class HistoryViewModel {
 
         do {
             try modelContext.save()
-            // Remove from cached sessions
             cachedSessions.removeAll { $0.id == session.id }
+            displayedSessions.removeAll { $0.id == session.id }
             calculateMaxVolume()
         } catch {
             print("Error deleting workout: \(error)")
@@ -179,7 +290,6 @@ final class HistoryViewModel {
 
         if let currentSelection = selectedDate,
            calendar.startOfDay(for: currentSelection) == dayStart {
-            // Deselect if already selected
             selectedDate = nil
         } else {
             selectedDate = dayStart
@@ -191,6 +301,12 @@ final class HistoryViewModel {
         selectedDate = nil
     }
 
+    /// Clear muscle filter
+    func clearMuscleFilter() {
+        selectedMuscleFilter = nil
+        onFilterChanged()
+    }
+
     // MARK: - Formatting
 
     /// Format the month/year display
@@ -200,7 +316,7 @@ final class HistoryViewModel {
         return formatter.string(from: selectedMonth)
     }
 
-    /// Check if can navigate to next month (don't go beyond current month)
+    /// Check if can navigate to next month
     var canGoToNextMonth: Bool {
         let calendar = Calendar.current
         let currentMonth = calendar.dateComponents([.year, .month], from: Date())

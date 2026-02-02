@@ -177,6 +177,9 @@ struct ScheduleCustomizationView: View {
                     workoutName: assignment.workoutName
                 )
             }
+            .onMove { source, destination in
+                viewModel.reorderWorkoutAssignments(from: source, to: destination)
+            }
         }
     }
 

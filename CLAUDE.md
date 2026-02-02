@@ -409,13 +409,13 @@ func test_calculate1RM_withValidInput_returnsCorrectValue() {
 **Phase 1 - MVP (v1.0)** ← CURRENT
 
 - [x] Project setup
-- [ ] SwiftData models
-- [ ] Onboarding flow
-- [ ] Dashboard view
-- [ ] Active workout logging
-- [ ] Rest timer
-- [ ] History view
-- [ ] Basic progress charts
+- [x] SwiftData models
+- [x] Onboarding flow
+- [x] Dashboard view
+- [x] Active workout logging
+- [x] Rest timer
+- [x] History view
+- [x] Basic progress charts
 
 See PRD for complete roadmap.
 

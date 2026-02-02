@@ -13,7 +13,26 @@ struct ExerciseListSheet: View {
     let exerciseLogs: [ExerciseLog]
     let currentIndex: Int
     let onSelectExercise: (Int) -> Void
+    let onReorderExercises: ((IndexSet, Int) -> Void)?
     let onDismiss: () -> Void
+
+    // MARK: - State
+
+    @State private var isEditing = false
+
+    init(
+        exerciseLogs: [ExerciseLog],
+        currentIndex: Int,
+        onSelectExercise: @escaping (Int) -> Void,
+        onReorderExercises: ((IndexSet, Int) -> Void)? = nil,
+        onDismiss: @escaping () -> Void
+    ) {
+        self.exerciseLogs = exerciseLogs
+        self.currentIndex = currentIndex
+        self.onSelectExercise = onSelectExercise
+        self.onReorderExercises = onReorderExercises
+        self.onDismiss = onDismiss
+    }
 
     // MARK: - Body
 
@@ -23,25 +42,47 @@ struct ExerciseListSheet: View {
                 Color.gymBackground
                     .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: AppSpacing.component) {
-                        ForEach(Array(exerciseLogs.enumerated()), id: \.element.id) { index, log in
-                            ExerciseListRow(
-                                exerciseLog: log,
-                                index: index,
-                                isCurrent: index == currentIndex,
-                                isCompleted: !log.sets.isEmpty
-                            ) {
+                List {
+                    ForEach(Array(exerciseLogs.enumerated()), id: \.element.id) { index, log in
+                        ExerciseListRow(
+                            exerciseLog: log,
+                            index: index,
+                            isCurrent: index == currentIndex,
+                            isCompleted: !log.sets.isEmpty,
+                            showGrip: onReorderExercises != nil
+                        ) {
+                            if !isEditing {
                                 onSelectExercise(index)
                             }
                         }
+                        .listRowBackground(Color.gymBackground)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                        .listRowSeparator(.hidden)
                     }
-                    .padding(AppSpacing.standard)
+                    .onMove { source, destination in
+                        onReorderExercises?(source, destination)
+                    }
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .environment(\.editMode, .constant(isEditing ? .active : .inactive))
             }
             .navigationTitle("Exercises")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if onReorderExercises != nil {
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                isEditing.toggle()
+                            }
+                        } label: {
+                            Text(isEditing ? "Done" : "Reorder")
+                                .fontWeight(isEditing ? .semibold : .regular)
+                        }
+                        .foregroundStyle(Color.gymPrimary)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
                         onDismiss()
@@ -62,13 +103,21 @@ struct ExerciseListRow: View {
     let index: Int
     let isCurrent: Bool
     let isCompleted: Bool
+    let showGrip: Bool
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: AppSpacing.component) {
+            HStack(spacing: 0) {
+                // Grip handle on far left
+                if showGrip {
+                    gripHandle
+                        .padding(.trailing, AppSpacing.small)
+                }
+
                 // Status indicator
                 statusIndicator
+                    .padding(.trailing, AppSpacing.component)
 
                 // Exercise info
                 VStack(alignment: .leading, spacing: AppSpacing.xs) {
@@ -78,7 +127,6 @@ struct ExerciseListRow: View {
                         .foregroundStyle(Color.gymText)
                         .lineLimit(1)
 
-                    // Muscle group
                     if let muscle = exerciseLog.exercise?.primaryMuscle {
                         Text(muscle.displayName)
                             .font(.caption)
@@ -92,7 +140,9 @@ struct ExerciseListRow: View {
                 if isCompleted {
                     Text("\(exerciseLog.workingSets) sets")
                         .font(.caption)
+                        .fontWeight(.medium)
                         .foregroundStyle(Color.gymSuccess)
+                        .padding(.trailing, AppSpacing.small)
                 }
 
                 // Chevron
@@ -100,15 +150,37 @@ struct ExerciseListRow: View {
                     .font(.caption)
                     .foregroundStyle(Color.gymTextMuted)
             }
-            .padding(AppSpacing.standard)
-            .background(isCurrent ? Color.gymPrimary.opacity(0.15) : Color.gymCard)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card))
+            .padding(.horizontal, AppSpacing.standard)
+            .padding(.vertical, AppSpacing.component)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.card)
+                    .fill(isCurrent ? Color.gymPrimary.opacity(0.12) : Color.gymCard)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: AppCornerRadius.card)
-                    .stroke(isCurrent ? Color.gymPrimary : Color.clear, lineWidth: 2)
+                    .stroke(
+                        isCurrent ? Color.gymPrimary.opacity(0.6) : Color.clear,
+                        lineWidth: 1.5
+                    )
             )
         }
+        .buttonStyle(.plain)
     }
+
+    // MARK: - Grip Handle
+
+    private var gripHandle: some View {
+        VStack(spacing: 3) {
+            ForEach(0..<3, id: \.self) { _ in
+                RoundedRectangle(cornerRadius: 0.5)
+                    .fill(Color.gymTextMuted.opacity(0.5))
+                    .frame(width: 16, height: 2)
+            }
+        }
+        .frame(width: 20)
+    }
+
+    // MARK: - Status Indicator
 
     private var statusIndicator: some View {
         ZStack {
@@ -151,7 +223,6 @@ struct ExerciseListRow: View {
     let log2 = ExerciseLog(exerciseOrder: 1)
     let log3 = ExerciseLog(exerciseOrder: 2)
 
-    // Add some sets to first log
     let set = SetLog(setNumber: 1, weight: 80, reps: 10)
     set.exerciseLog = log1
     log1.sets = [set]
@@ -160,6 +231,7 @@ struct ExerciseListRow: View {
         exerciseLogs: [log1, log2, log3],
         currentIndex: 1,
         onSelectExercise: { _ in },
+        onReorderExercises: { _, _ in },
         onDismiss: {}
     )
 }

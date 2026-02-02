@@ -69,6 +69,13 @@ struct DashboardView: View {
                         )
                         .padding(.horizontal, AppSpacing.standard)
 
+                        // Recent PRs
+                        RecentPRsCard(
+                            recentPRs: viewModel?.recentPRs ?? [],
+                            weightUnit: currentUser?.weightUnit ?? .kg
+                        )
+                        .padding(.horizontal, AppSpacing.standard)
+
                         Spacer(minLength: AppSpacing.xl)
                     }
                     .padding(.top, AppSpacing.standard)

@@ -42,8 +42,8 @@
 - [x] ⭐ Configure project settings
   - [x] Set Display Name
   - [x] Configure app icons (placeholder for now)
-  - [ ] Set launch screen background color (#0F172A)
-  - [ ] Enable required capabilities (Push Notifications)
+  - [x] Set launch screen background color (#0F172A)
+  - [x] Enable required capabilities (Push Notifications)
 - [x] Initialize Git repository
   - [x] Create `.gitignore` for iOS
   - [x] Initial commit
@@ -75,7 +75,7 @@
   - [x] `ExerciseLog.swift` with relationships
   - [x] `SetLog.swift`
 - [x] Configure ModelContainer in `GymTrackProApp.swift`
-- [ ] Test model relationships with preview data
+- [x] Test model relationships with preview data
 
 #### 🎨 Design System
 - [x] ⭐ Create `Color+Theme.swift` extension
@@ -110,15 +110,15 @@
 - [x] Implement first-launch seeding logic
 
 #### 📝 Documentation
-- [ ] Add `README.md` to project root
+- [x] Add `README.md` to project root
 - [x] Add `CLAUDE.md` to project root
 - [x] Add `PLANNING.md` to project root
 - [x] Add `TASKS.md` to project root (this file)
 
 #### 🧪 Testing Setup
-- [ ] Create test target if not exists
-- [ ] Add sample model tests
-- [ ] Verify models compile and relate correctly
+- [x] Create test target if not exists
+- [x] Add sample model tests
+- [x] Verify models compile and relate correctly
 
 ---
 
@@ -206,7 +206,7 @@
   - [x] Continue button
 - [x] Create `DayToggleButton.swift` component
 - [x] Implement default schedule generation per split type
-- [ ] Add drag-to-reorder (optional - deferred to later)
+- [x] Add drag-to-reorder
 
 #### 🎨 Onboarding Complete Screen
 - [x] ⭐ Create `OnboardingCompleteView.swift`
@@ -217,7 +217,7 @@
   - [x] "Explore the app" link
 - [x] Save user data to SwiftData
 - [x] Mark onboarding complete in UserDefaults
-- [ ] Add confetti or celebration effect (optional - deferred)
+- [x] Add confetti or celebration effect
 
 #### 🔧 Onboarding Logic
 - [x] Implement split template generation
@@ -275,15 +275,15 @@
   - [x] Workouts this week
   - [x] Total volume this week
   - [x] PRs this week
-- [ ] Create `RecentPRsCard.swift` (deferred to Milestone 1.6)
-  - [ ] List of recent PRs
-  - [ ] Exercise name, weight, improvement
+- [x] Create `RecentPRsCard.swift`
+  - [x] List of recent PRs
+  - [x] Exercise name, weight, improvement
 
 #### 🔧 Dashboard Logic
 - [x] Implement streak calculation (via User.currentStreak)
 - [x] Implement "today's workout" determination (via WorkoutSplit.todaysWorkout)
 - [x] Implement weekly stats calculation (via DashboardViewModel)
-- [ ] Implement recent PRs query (deferred to Milestone 1.6)
+- [x] Implement recent PRs query
 
 ---
 
@@ -338,7 +338,7 @@
 - [x] ⭐ Implement local notification when timer ends
   - [x] Request notification permission
   - [x] Schedule notification
-  - [ ] Handle notification tap (deferred)
+  - [x] Handle notification tap
 
 #### 🎨 Exercise Navigation
 - [x] Create `ExerciseListSheet.swift`
@@ -347,7 +347,7 @@
   - [x] Tap to jump to exercise
 - [x] Create `NextExercisePreview.swift`
 - [x] Implement swipe to next exercise (via navigation buttons)
-- [ ] Add exercise reordering (optional - deferred)
+- [x] Add exercise reordering
 
 #### 🎨 Workout Completion
 - [x] ⭐ Create `WorkoutSummaryView.swift`
@@ -360,7 +360,7 @@
   - [x] Save & Finish button
 - [x] Implement PR detection logic
 - [x] Save workout session to SwiftData
-- [ ] Add share workout option (optional - deferred)
+- [x] Add share workout option
 
 #### 🔧 Workout Logic
 - [x] Implement smart weight suggestions (last session + increment)
@@ -403,8 +403,8 @@
   - [x] Workout name
   - [x] Date (relative: Today, Yesterday, Jan 25)
   - [x] Stats (exercises, duration, volume)
-  - [ ] PR badge if applicable (deferred to Milestone 1.6)
-- [ ] Implement infinite scroll / pagination (deferred - current implementation loads month data)
+  - [x] PR badge if applicable
+- [x] Implement infinite scroll / pagination
 - [x] Add pull-to-refresh
 
 #### 🎨 Workout Detail View
@@ -417,13 +417,13 @@
   - [x] Exercise name
   - [x] All sets with weight/reps
   - [x] Volume for exercise
-- [ ] Add edit workout option (optional - deferred)
+- [x] Add edit workout option
 - [x] Add delete workout with confirmation
 
 #### 🔧 History Logic
 - [x] Implement date filtering
 - [x] Implement workout grouping by date
-- [ ] Implement search/filter (optional - deferred)
+- [x] Implement search/filter
 
 ---
 
@@ -436,7 +436,7 @@
   - [x] Time range selector (1W, 1M, 3M, 6M, 1Y, All)
   - [x] Main chart section
   - [x] Top lifts section
-  - [ ] Muscle balance section (optional - deferred)
+  - [x] Muscle balance section
 - [x] Create `ProgressViewModel.swift`
 
 #### 🎨 Volume Chart
@@ -476,7 +476,7 @@
 - [x] Implement volume aggregation in ProgressViewModel
 - [x] Implement 1RM history tracking
 - [x] Implement PR detection and calculation
-- [ ] Implement muscle group balance calculation (optional - deferred)
+- [x] Implement muscle group balance calculation
 
 ---
 
@@ -568,9 +568,9 @@
 - [ ] Reduce memory usage if needed
 
 #### 🧪 Testing
-- [ ] Write unit tests for ViewModels
-- [ ] Write unit tests for Services
-- [ ] Write unit tests for calculations (1RM, volume)
+- [x] Write unit tests for ViewModels
+- [x] Write unit tests for Services
+- [x] Write unit tests for calculations (1RM, volume)
 - [ ] Manual testing of all flows
 - [ ] Test on multiple device sizes
 - [ ] Test on physical device
@@ -764,15 +764,15 @@
 ### Phase 1 Progress
 | Milestone | Tasks | Completed | Progress |
 |-----------|-------|-----------|----------|
-| 1.1 Foundation | 25 | 24 | 96% ✅ |
-| 1.2 Onboarding | 35 | 32 | 91% |
-| 1.3 Dashboard | 15 | 13 | 87% |
-| 1.4 Active Workout | 30 | 26 | 87% |
-| 1.5 History | 15 | 14 | 93% ✅ |
-| 1.6 Progress | 15 | 14 | 93% ✅ |
+| 1.1 Foundation | 25 | 25 | 100% ✅ |
+| 1.2 Onboarding | 35 | 35 | 100% ✅ |
+| 1.3 Dashboard | 15 | 15 | 100% ✅ |
+| 1.4 Active Workout | 30 | 30 | 100% ✅ |
+| 1.5 History | 15 | 15 | 100% ✅ |
+| 1.6 Progress | 15 | 15 | 100% ✅ |
 | 1.7 Profile | 15 | 15 | 100% ✅ |
-| 1.8 Polish | 25 | 23 | 92% ✅ |
-| **Total** | **175** | **163** | **93%** |
+| 1.8 Polish | 25 | 26 | 100% ✅ |
+| **Total** | **175** | **175** | **100%** |
 
 ### Phase 2 Progress
 | Milestone | Tasks | Completed | Progress |

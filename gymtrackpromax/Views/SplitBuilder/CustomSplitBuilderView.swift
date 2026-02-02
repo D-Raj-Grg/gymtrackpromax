@@ -140,6 +140,28 @@ struct CustomSplitBuilderView: View {
             } message: {
                 Text(viewModel?.errorMessage ?? "An error occurred")
             }
+            .alert("Remove Exercises with Progress?", isPresented: Binding(
+                get: { viewModel?.showingInProgressConflictAlert ?? false },
+                set: { viewModel?.showingInProgressConflictAlert = $0 }
+            )) {
+                Button("Remove Progress", role: .destructive) {
+                    guard let viewModel = viewModel else { return }
+                    do {
+                        try viewModel.confirmAndSaveSplit()
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
+                        dismiss()
+                    } catch {
+                        UINotificationFeedbackGenerator().notificationOccurred(.error)
+                        viewModel.showError(error.localizedDescription)
+                    }
+                    isSaving = false
+                }
+                Button("Cancel", role: .cancel) {
+                    isSaving = false
+                }
+            } message: {
+                Text(viewModel?.conflictAlertMessage ?? "Some exercises have logged progress.")
+            }
             .sheet(item: $editingDayItem) { item in
                 if let viewModel = viewModel {
                     WorkoutDayEditorView(viewModel: viewModel, dayIndex: item.index)
@@ -435,6 +457,10 @@ struct CustomSplitBuilderView: View {
 
         do {
             try viewModel.saveSplit(for: user)
+            // If conflict alert is showing, don't dismiss yet — wait for user confirmation
+            if viewModel.showingInProgressConflictAlert {
+                return
+            }
             UINotificationFeedbackGenerator().notificationOccurred(.success)
             dismiss()
         } catch {

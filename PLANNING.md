@@ -387,42 +387,42 @@ dependencies: [
 
 ### Phase 1: MVP (v1.0) — 8-10 weeks
 
-#### Milestone 1.1: Foundation (Week 1-2)
-- [ ] Xcode project setup with SwiftData
-- [ ] Data models implementation
-- [ ] Color theme and design system
-- [ ] Basic navigation structure
-- [ ] Exercise seed data (JSON)
+#### Milestone 1.1: Foundation (Week 1-2) ✅
+- [x] Xcode project setup with SwiftData
+- [x] Data models implementation
+- [x] Color theme and design system
+- [x] Basic navigation structure
+- [x] Exercise seed data (JSON)
 
-#### Milestone 1.2: Onboarding (Week 3-4)
-- [ ] Splash screen with animation
-- [ ] Welcome carousel (3 slides)
-- [ ] User info collection
-- [ ] Goal selection
-- [ ] Split selection
-- [ ] Schedule customization
-- [ ] Completion celebration
+#### Milestone 1.2: Onboarding (Week 3-4) ✅
+- [x] Splash screen with animation
+- [x] Welcome carousel (3 slides)
+- [x] User info collection
+- [x] Goal selection
+- [x] Split selection
+- [x] Schedule customization
+- [x] Completion celebration
 
-#### Milestone 1.3: Core Workout (Week 5-6)
-- [ ] Dashboard view
-- [ ] Today's workout card
-- [ ] Active workout view
-- [ ] Set logging interface
-- [ ] Rest timer with notifications
-- [ ] Workout completion summary
+#### Milestone 1.3: Core Workout (Week 5-6) ✅
+- [x] Dashboard view
+- [x] Today's workout card
+- [x] Active workout view
+- [x] Set logging interface
+- [x] Rest timer with notifications
+- [x] Workout completion summary
 
-#### Milestone 1.4: History & Progress (Week 7-8)
-- [ ] History list view
-- [ ] Calendar heatmap
-- [ ] Workout detail view
-- [ ] Progress charts (Swift Charts)
-- [ ] PR tracking and display
+#### Milestone 1.4: History & Progress (Week 7-8) ✅
+- [x] History list view
+- [x] Calendar heatmap
+- [x] Workout detail view
+- [x] Progress charts (Swift Charts)
+- [x] PR tracking and display
 
-#### Milestone 1.5: Polish & Testing (Week 9-10)
-- [ ] Profile/settings view
-- [ ] Haptic feedback throughout
-- [ ] Loading and error states
-- [ ] Empty states
+#### Milestone 1.5: Polish & Testing (Week 9-10) ✅
+- [x] Profile/settings view
+- [x] Haptic feedback throughout
+- [x] Loading and error states
+- [x] Empty states
 - [ ] TestFlight beta
 - [ ] Bug fixes from beta feedback
 
@@ -512,10 +512,10 @@ Before starting development, ensure:
 - [x] Dependencies evaluated
 - [x] Phases and milestones planned
 - [x] Risks assessed
-- [ ] Xcode project created
-- [ ] Git repository initialized
+- [x] Xcode project created
+- [x] Git repository initialized
 - [ ] Apple Developer account ready
-- [ ] Design assets prepared (app icon, colors)
+- [x] Design assets prepared (app icon, colors)
 
 ---
 

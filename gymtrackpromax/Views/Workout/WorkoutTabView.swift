@@ -34,7 +34,17 @@ struct WorkoutTabView: View {
     }
 
     private var sortedWorkoutDays: [WorkoutDay] {
-        activeSplit?.sortedWorkoutDays ?? []
+        guard let days = activeSplit?.workoutDays else { return [] }
+        let startIndex = (currentUser?.weekStartDay ?? .monday).firstWeekdayIndex
+
+        return days.sorted { a, b in
+            let dayA = a.scheduledWeekdays.sorted().first ?? Int.max
+            let dayB = b.scheduledWeekdays.sorted().first ?? Int.max
+
+            let normalizedA = (dayA - startIndex + 7) % 7
+            let normalizedB = (dayB - startIndex + 7) % 7
+            return normalizedA < normalizedB
+        }
     }
 
     private var isRestDay: Bool {
@@ -151,13 +161,13 @@ struct WorkoutTabView: View {
 
                 Spacer()
 
-                Text("Scheduled")
+                Text(workout.inProgressSession != nil ? "In Progress" : "Scheduled")
                     .font(.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(Color.gymText)
                     .padding(.horizontal, AppSpacing.component)
                     .padding(.vertical, AppSpacing.xs)
-                    .background(Color.gymPrimary)
+                    .background(workout.inProgressSession != nil ? Color.gymWarning : Color.gymPrimary)
                     .clipShape(Capsule())
             }
 
@@ -187,16 +197,40 @@ struct WorkoutTabView: View {
                 )
             }
 
+            // In-progress indicator
+            if let session = workout.inProgressSession {
+                HStack(spacing: AppSpacing.small) {
+                    Image(systemName: "pause.circle.fill")
+                        .foregroundStyle(Color.gymWarning)
+
+                    Text("In Progress")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.gymWarning)
+
+                    Text("•")
+                        .foregroundStyle(Color.gymTextMuted)
+
+                    Text("\(session.exerciseLogs.flatMap(\.sets).count) sets logged")
+                        .font(.caption)
+                        .foregroundStyle(Color.gymTextMuted)
+
+                    Spacer()
+                }
+            }
+
             // Start workout or add exercises button
             if workout.exerciseCount > 0 {
+                let isInProgress = workout.inProgressSession != nil
+
                 Button {
                     let generator = UIImpactFeedbackGenerator(style: .medium)
                     generator.impactOccurred()
                     selectedWorkoutDay = workout
                 } label: {
                     HStack {
-                        Image(systemName: "play.fill")
-                        Text("Start Workout")
+                        Image(systemName: isInProgress ? "play.circle.fill" : "play.fill")
+                        Text(isInProgress ? "Resume Workout" : "Start Workout")
                     }
                 }
                 .primaryButtonStyle()
@@ -287,12 +321,12 @@ struct WorkoutTabView: View {
                 // Workout icon
                 ZStack {
                     Circle()
-                        .fill(isToday(workoutDay) ? Color.gymPrimary : Color.gymCardHover)
+                        .fill(workoutDay.inProgressSession != nil ? Color.gymWarning : (isToday(workoutDay) ? Color.gymPrimary : Color.gymCardHover))
                         .frame(width: 44, height: 44)
 
                     Image(systemName: "figure.strengthtraining.traditional")
                         .font(.headline)
-                        .foregroundStyle(isToday(workoutDay) ? Color.gymText : Color.gymTextMuted)
+                        .foregroundStyle(workoutDay.inProgressSession != nil ? Color.gymText : (isToday(workoutDay) ? Color.gymText : Color.gymTextMuted))
                 }
 
                 // Workout info
@@ -318,6 +352,18 @@ struct WorkoutTabView: View {
                 }
 
                 Spacer()
+
+                // In-progress badge
+                if workoutDay.inProgressSession != nil {
+                    Text("In Progress")
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.gymText)
+                        .padding(.horizontal, AppSpacing.small)
+                        .padding(.vertical, 2)
+                        .background(Color.gymWarning)
+                        .clipShape(Capsule())
+                }
 
                 // Chevron
                 Image(systemName: "chevron.right")

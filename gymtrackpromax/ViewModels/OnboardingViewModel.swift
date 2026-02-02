@@ -53,22 +53,46 @@ final class OnboardingViewModel {
 
     // MARK: - Computed Properties
 
+    /// Custom workout day name ordering (indices into defaultDayNames)
+    var workoutDayOrder: [Int] = []
+
     /// Weekday assignments based on selected days and split
     var weekdayAssignments: [(weekday: Int, workoutName: String?)] {
         let sortedWeekdays = selectedWeekdays.sorted()
         let dayNames = selectedSplit.defaultDayNames
 
+        // Use custom order if set, otherwise sequential
+        let orderedNames: [String]
+        if workoutDayOrder.count == dayNames.count {
+            orderedNames = workoutDayOrder.compactMap { index in
+                index < dayNames.count ? dayNames[index] : nil
+            }
+        } else {
+            orderedNames = dayNames
+        }
+
         var assignments: [(Int, String?)] = []
 
         for weekday in 0..<7 {
-            if let index = sortedWeekdays.firstIndex(of: weekday), index < dayNames.count {
-                assignments.append((weekday, dayNames[index]))
+            if let index = sortedWeekdays.firstIndex(of: weekday), index < orderedNames.count {
+                assignments.append((weekday, orderedNames[index]))
             } else {
                 assignments.append((weekday, nil))
             }
         }
 
         return assignments
+    }
+
+    /// Reorder workout day assignments
+    func reorderWorkoutAssignments(from source: IndexSet, to destination: Int) {
+        let dayNames = selectedSplit.defaultDayNames
+
+        if workoutDayOrder.isEmpty {
+            workoutDayOrder = Array(0..<dayNames.count)
+        }
+
+        workoutDayOrder.move(fromOffsets: source, toOffset: destination)
     }
 
     /// Summary text for selected workout days

@@ -52,21 +52,21 @@ enum Equipment: String, Codable, CaseIterable {
         case .barbell:
             return "dumbbell.fill"
         case .dumbbell:
-            return "dumbbell.fill"
+            return "dumbbell"
         case .cable:
-            return "arrow.up.and.down.and.arrow.left.and.right"
+            return "arrow.up.and.down"
         case .machine:
             return "gearshape.fill"
         case .bodyweight:
             return "figure.stand"
         case .kettlebell:
-            return "circle.fill"
+            return "drop.fill"
         case .ezBar:
-            return "dumbbell.fill"
+            return "waveform"
         case .smithMachine:
-            return "square.grid.3x3.fill"
+            return "arrow.up.and.down.square"
         case .resistanceBand:
-            return "arrow.left.and.right"
+            return "wind"
         case .trapBar:
             return "hexagon.fill"
         }

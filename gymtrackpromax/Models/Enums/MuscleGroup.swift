@@ -55,25 +55,25 @@ enum MuscleGroup: String, Codable, CaseIterable {
         case .chest:
             return "figure.arms.open"
         case .back:
-            return "figure.rowing"
+            return "figure.indoor.rowing"
         case .shoulders:
             return "figure.boxing"
         case .biceps:
             return "figure.strengthtraining.traditional"
         case .triceps:
-            return "figure.strengthtraining.traditional"
+            return "figure.strengthtraining.functional"
         case .quads:
-            return "figure.run"
+            return "figure.step.training"
         case .hamstrings:
             return "figure.run"
         case .glutes:
-            return "figure.run"
+            return "figure.stair.stepper"
         case .calves:
             return "figure.walk"
         case .abs:
             return "figure.core.training"
         case .forearms:
-            return "hand.raised.fill"
+            return "figure.hand.cycling"
         }
     }
 

@@ -84,6 +84,14 @@ struct VolumeDataPoint: Identifiable {
     let volume: Double
 }
 
+/// Muscle group distribution data
+struct MuscleDistribution: Identifiable {
+    let id = UUID()
+    let muscle: MuscleGroup
+    let sets: Int
+    let percentage: Double
+}
+
 // MARK: - Progress View Model
 
 @Observable
@@ -103,6 +111,7 @@ final class ProgressViewModel {
     var totalVolumeInRange: Double = 0
     var workoutsInRange: Int = 0
     var prsInRange: Int = 0
+    var muscleDistribution: [MuscleDistribution] = []
 
     // MARK: - Initialization
 
@@ -132,6 +141,9 @@ final class ProgressViewModel {
         totalVolumeInRange = filteredSessions.reduce(0) { $0 + $1.totalVolume }
         workoutsInRange = filteredSessions.count
         prsInRange = calculatePRsInRange(sessions: sessions, filteredSessions: filteredSessions)
+
+        // Calculate muscle distribution
+        muscleDistribution = calculateMuscleDistribution(sessions: filteredSessions)
     }
 
     // MARK: - Private Helpers
@@ -301,6 +313,31 @@ final class ProgressViewModel {
         }
 
         return prsInRange
+    }
+
+    /// Calculate muscle group distribution from working sets
+    private func calculateMuscleDistribution(sessions: [WorkoutSession]) -> [MuscleDistribution] {
+        var setsByMuscle: [MuscleGroup: Int] = [:]
+
+        for session in sessions {
+            for log in session.exerciseLogs {
+                guard let muscle = log.exercise?.primaryMuscle else { continue }
+                setsByMuscle[muscle, default: 0] += log.workingSets
+            }
+        }
+
+        let totalSets = setsByMuscle.values.reduce(0, +)
+        guard totalSets > 0 else { return [] }
+
+        return setsByMuscle
+            .map { muscle, sets in
+                MuscleDistribution(
+                    muscle: muscle,
+                    sets: sets,
+                    percentage: Double(sets) / Double(totalSets) * 100
+                )
+            }
+            .sorted { $0.sets > $1.sets }
     }
 
     // MARK: - Formatting Helpers

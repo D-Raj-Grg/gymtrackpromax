@@ -130,12 +130,27 @@ final class WorkoutViewModel {
     /// Whether workout is completed
     var isWorkoutCompleted: Bool = false
 
+    // MARK: - Computed Workout State
+
+    /// Whether any sets have been logged in this session
+    var hasLoggedSets: Bool {
+        guard let session = currentSession else { return false }
+        return session.exerciseLogs.contains { !$0.sets.isEmpty }
+    }
+
+    /// Total number of sets logged across all exercises
+    var loggedSetsCount: Int {
+        guard let session = currentSession else { return 0 }
+        return session.exerciseLogs.reduce(0) { $0 + $1.sets.count }
+    }
+
     // MARK: - Private Properties
 
     private var modelContext: ModelContext
     private var workoutService = WorkoutService.shared
     private var elapsedTimer: Timer?
     private var restTimerObserver: Any?
+    private var dayEditedObserver: Any?
 
     // MARK: - Initialization
 
@@ -170,6 +185,9 @@ final class WorkoutViewModel {
         // Observe rest timer completion to clear Live Activity rest state
         observeRestTimerCompletion()
 
+        // Observe workout day edits to sync session
+        observeDayEdits()
+
         // Request notification permission
         Task {
             _ = await timerService.requestNotificationPermission()
@@ -197,6 +215,9 @@ final class WorkoutViewModel {
 
         // Observe rest timer completion
         observeRestTimerCompletion()
+
+        // Observe workout day edits
+        observeDayEdits()
     }
 
     /// Complete the workout
@@ -217,6 +238,7 @@ final class WorkoutViewModel {
         // End Live Activity
         LiveActivityService.shared.endActivity()
         removeRestTimerObserver()
+        removeDayEditedObserver()
 
         // Refresh widgets with updated data
         WidgetUpdateService.reloadAllTimelines()
@@ -241,6 +263,7 @@ final class WorkoutViewModel {
         // End Live Activity
         LiveActivityService.shared.endActivity()
         removeRestTimerObserver()
+        removeDayEditedObserver()
 
         currentSession = nil
     }
@@ -380,6 +403,34 @@ final class WorkoutViewModel {
         updateLiveActivity()
 
         // Light haptic
+        HapticManager.buttonTap()
+    }
+
+    /// Reorder exercises in the active workout
+    func reorderExercises(from source: IndexSet, to destination: Int) {
+        guard let session = currentSession else { return }
+
+        var logs = session.sortedExerciseLogs
+        logs.move(fromOffsets: source, toOffset: destination)
+
+        // Update exercise order on each log
+        for (index, log) in logs.enumerated() {
+            log.exerciseOrder = index
+        }
+
+        try? modelContext.save()
+
+        // Adjust current index if needed
+        if let oldIndex = source.first {
+            if oldIndex == currentExerciseIndex {
+                currentExerciseIndex = oldIndex < destination ? destination - 1 : destination
+            } else if oldIndex < currentExerciseIndex && destination > currentExerciseIndex {
+                currentExerciseIndex -= 1
+            } else if oldIndex > currentExerciseIndex && destination <= currentExerciseIndex {
+                currentExerciseIndex += 1
+            }
+        }
+
         HapticManager.buttonTap()
     }
 
@@ -536,6 +587,34 @@ final class WorkoutViewModel {
         if let observer = restTimerObserver {
             NotificationCenter.default.removeObserver(observer)
             restTimerObserver = nil
+        }
+    }
+
+    private func observeDayEdits() {
+        removeDayEditedObserver()
+        dayEditedObserver = NotificationCenter.default.addObserver(
+            forName: .workoutDayEdited,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Clamp exercise index if exercises were removed
+                let logCount = self.exerciseLogs.count
+                if logCount > 0 && self.currentExerciseIndex >= logCount {
+                    self.currentExerciseIndex = logCount - 1
+                }
+                self.initializeSetInput()
+                self.updateLiveActivity()
+            }
+        }
+    }
+
+    private func removeDayEditedObserver() {
+        if let observer = dayEditedObserver {
+            NotificationCenter.default.removeObserver(observer)
+            dayEditedObserver = nil
         }
     }
 

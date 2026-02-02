@@ -68,6 +68,12 @@ struct ProgressView: View {
                                     .padding(.horizontal, AppSpacing.standard)
                             }
 
+                            // Muscle Balance
+                            if let vm = viewModel, !vm.muscleDistribution.isEmpty {
+                                MuscleBalanceView(distribution: vm.muscleDistribution)
+                                    .padding(.horizontal, AppSpacing.standard)
+                            }
+
                             // Top Lifts
                             if let vm = viewModel, !vm.topExercises.isEmpty {
                                 topLiftsSection

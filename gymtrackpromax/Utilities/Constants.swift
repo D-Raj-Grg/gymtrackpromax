@@ -161,4 +161,7 @@ extension Notification.Name {
 
     /// Posted when user taps rest timer notification
     static let restTimerNotificationTapped = Notification.Name("restTimerNotificationTapped")
+
+    /// Posted when a workout day is edited while a session is in progress
+    static let workoutDayEdited = Notification.Name("workoutDayEdited")
 }

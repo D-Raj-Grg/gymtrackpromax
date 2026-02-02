@@ -8,6 +8,16 @@
 import Foundation
 import SwiftData
 
+/// Info for a recent PR to display on the dashboard
+struct DashboardPRInfo: Identifiable {
+    let id = UUID()
+    let exerciseName: String
+    let weight: Double
+    let reps: Int
+    let estimated1RM: Double
+    let date: Date
+}
+
 @Observable
 @MainActor
 final class DashboardViewModel {
@@ -20,6 +30,7 @@ final class DashboardViewModel {
     var workoutsThisWeek: Int = 0
     var volumeThisWeek: Double = 0
     var prsThisWeek: Int = 0
+    var recentPRs: [DashboardPRInfo] = []
     var isLoading: Bool = false
 
     // MARK: - Initialization
@@ -42,23 +53,64 @@ final class DashboardViewModel {
             return
         }
 
-        // Fetch completed sessions this week
-        let predicate = #Predicate<WorkoutSession> { session in
-            session.endTime != nil && session.startTime >= weekStart
+        // Fetch all completed sessions
+        let allPredicate = #Predicate<WorkoutSession> { session in
+            session.endTime != nil
         }
-
-        let descriptor = FetchDescriptor<WorkoutSession>(predicate: predicate)
+        let allDescriptor = FetchDescriptor<WorkoutSession>(
+            predicate: allPredicate,
+            sortBy: [SortDescriptor(\.startTime)]
+        )
 
         do {
-            let sessions = try modelContext.fetch(descriptor)
+            let allSessions = try modelContext.fetch(allDescriptor)
 
-            // Calculate stats
-            workoutsThisWeek = sessions.count
-            volumeThisWeek = sessions.reduce(0) { $0 + $1.totalVolume }
+            // Weekly sessions
+            let weeklySessions = allSessions.filter { $0.startTime >= weekStart }
+            workoutsThisWeek = weeklySessions.count
+            volumeThisWeek = weeklySessions.reduce(0) { $0 + $1.totalVolume }
 
-            // PRs this week - placeholder (will be fully implemented in Milestone 1.6)
-            // For now, we'd need to compare each set to historical bests
-            prsThisWeek = 0
+            // Calculate real PRs
+            let weeklySessionIds = Set(weeklySessions.map { $0.id })
+            var exerciseBests: [UUID: (exerciseName: String, estimated1RM: Double, weight: Double, reps: Int, date: Date)] = [:]
+            var prCount = 0
+            var prList: [DashboardPRInfo] = []
+
+            for session in allSessions {
+                for log in session.exerciseLogs {
+                    guard let exercise = log.exercise else { continue }
+
+                    for set in log.workingSetsArray {
+                        let currentBest = exerciseBests[exercise.id]?.estimated1RM ?? 0
+
+                        if set.estimated1RM > currentBest {
+                            exerciseBests[exercise.id] = (
+                                exerciseName: exercise.name,
+                                estimated1RM: set.estimated1RM,
+                                weight: set.weight,
+                                reps: set.reps,
+                                date: session.startTime
+                            )
+
+                            if weeklySessionIds.contains(session.id) {
+                                prCount += 1
+                                // Track for recent PRs card
+                                prList.append(DashboardPRInfo(
+                                    exerciseName: exercise.name,
+                                    weight: set.weight,
+                                    reps: set.reps,
+                                    estimated1RM: set.estimated1RM,
+                                    date: session.startTime
+                                ))
+                            }
+                        }
+                    }
+                }
+            }
+
+            prsThisWeek = prCount
+            // Show only the most recent 3 PRs
+            recentPRs = Array(prList.sorted { $0.date > $1.date }.prefix(3))
 
         } catch {
             print("Error fetching weekly stats: \(error)")

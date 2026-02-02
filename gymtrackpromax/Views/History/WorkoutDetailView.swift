@@ -25,6 +25,7 @@ struct WorkoutDetailView: View {
     // MARK: - State
 
     @State private var showDeleteConfirmation = false
+    @State private var showEditSheet = false
 
     // MARK: - Body
 
@@ -66,6 +67,17 @@ struct WorkoutDetailView: View {
                         .foregroundStyle(Color.gymTextMuted)
                 }
             }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showEditSheet = true
+                } label: {
+                    Text("Edit")
+                        .foregroundStyle(Color.gymPrimary)
+                }
+            }
+        }
+        .sheet(isPresented: $showEditSheet) {
+            EditWorkoutView(session: session, weightUnit: weightUnit)
         }
         .alert("Delete Workout", isPresented: $showDeleteConfirmation) {
             Button("Cancel", role: .cancel) {}

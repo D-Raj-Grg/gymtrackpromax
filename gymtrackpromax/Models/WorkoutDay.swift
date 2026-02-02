@@ -102,4 +102,9 @@ final class WorkoutDay {
             .sorted { $0.startTime > $1.startTime }
             .first
     }
+
+    /// In-progress session (saved but not completed, with at least one logged set)
+    var inProgressSession: WorkoutSession? {
+        workoutSessions.first { $0.endTime == nil && !$0.exerciseLogs.isEmpty }
+    }
 }

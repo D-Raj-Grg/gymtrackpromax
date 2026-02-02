@@ -81,20 +81,47 @@ struct TodayWorkoutCard: View {
                 )
             }
 
+            // In-progress indicator
+            if let session = workout.inProgressSession {
+                HStack(spacing: AppSpacing.small) {
+                    Image(systemName: "pause.circle.fill")
+                        .foregroundStyle(Color.gymWarning)
+
+                    Text("In Progress")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.gymWarning)
+
+                    Text("•")
+                        .foregroundStyle(Color.gymTextMuted)
+
+                    Text("\(session.exerciseLogs.flatMap(\.sets).count) sets logged")
+                        .font(.caption)
+                        .foregroundStyle(Color.gymTextMuted)
+
+                    Spacer()
+                }
+            }
+
             // Start workout or add exercises button
             if workout.exerciseCount > 0 {
+                let isInProgress = workout.inProgressSession != nil
+
                 Button {
                     HapticManager.mediumImpact()
                     onStartWorkout()
                 } label: {
                     HStack {
-                        Image(systemName: "play.fill")
-                        Text("Start Workout")
+                        Image(systemName: isInProgress ? "play.circle.fill" : "play.fill")
+                        Text(isInProgress ? "Resume Workout" : "Start Workout")
                     }
                 }
                 .primaryButtonStyle()
                 .padding(.top, AppSpacing.small)
-                .accessibleButton(label: "Start \(workout.name) workout", hint: "Double tap to begin your workout")
+                .accessibleButton(
+                    label: isInProgress ? "Resume \(workout.name) workout" : "Start \(workout.name) workout",
+                    hint: isInProgress ? "Double tap to resume your saved workout" : "Double tap to begin your workout"
+                )
             } else {
                 VStack(spacing: AppSpacing.small) {
                     Text("No exercises added yet")

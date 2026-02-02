@@ -99,6 +99,12 @@ struct HistoryView: View {
                 )
                 .padding(.horizontal, AppSpacing.standard)
 
+                // Search bar
+                searchBar(viewModel)
+
+                // Muscle group filter chips
+                muscleFilterChips(viewModel)
+
                 // Filter indicator
                 if viewModel.selectedDate != nil {
                     filterIndicator(viewModel)
@@ -116,11 +122,79 @@ struct HistoryView: View {
         }
     }
 
+    // MARK: - Search Bar
+
+    private func searchBar(_ viewModel: HistoryViewModel) -> some View {
+        HStack(spacing: AppSpacing.small) {
+            Image(systemName: "magnifyingglass")
+                .font(.subheadline)
+                .foregroundStyle(Color.gymTextMuted)
+
+            TextField("Search by exercise name...", text: Binding(
+                get: { viewModel.searchText },
+                set: { newValue in
+                    viewModel.searchText = newValue
+                    viewModel.onFilterChanged()
+                }
+            ))
+            .font(.subheadline)
+            .foregroundStyle(Color.gymText)
+            .autocorrectionDisabled()
+
+            if !viewModel.searchText.isEmpty {
+                Button {
+                    viewModel.searchText = ""
+                    viewModel.onFilterChanged()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.gymTextMuted)
+                }
+            }
+        }
+        .padding(AppSpacing.component)
+        .background(Color.gymCard)
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.input))
+        .padding(.horizontal, AppSpacing.standard)
+    }
+
+    // MARK: - Muscle Filter Chips
+
+    private func muscleFilterChips(_ viewModel: HistoryViewModel) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppSpacing.small) {
+                ForEach(MuscleGroup.allCases, id: \.rawValue) { muscle in
+                    let isSelected = viewModel.selectedMuscleFilter == muscle
+                    Button {
+                        HapticManager.buttonTap()
+                        if isSelected {
+                            viewModel.selectedMuscleFilter = nil
+                        } else {
+                            viewModel.selectedMuscleFilter = muscle
+                        }
+                        viewModel.onFilterChanged()
+                    } label: {
+                        Text(muscle.displayName)
+                            .font(.caption)
+                            .fontWeight(isSelected ? .semibold : .medium)
+                            .foregroundStyle(isSelected ? Color.gymText : Color.gymTextMuted)
+                            .padding(.horizontal, AppSpacing.component)
+                            .padding(.vertical, AppSpacing.xs)
+                            .background(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.button)
+                                    .fill(isSelected ? Color.gymPrimary : Color.gymCard)
+                            )
+                    }
+                }
+            }
+            .padding(.horizontal, AppSpacing.standard)
+        }
+    }
+
     // MARK: - Month Navigation
 
     private func monthNavigationHeader(_ viewModel: HistoryViewModel) -> some View {
         HStack {
-            // Previous month button
             Button {
                 HapticManager.buttonTap()
                 viewModel.goToPreviousMonth()
@@ -134,7 +208,6 @@ struct HistoryView: View {
 
             Spacer()
 
-            // Month/Year display
             Text(viewModel.monthYearDisplay)
                 .font(.title2)
                 .fontWeight(.bold)
@@ -142,7 +215,6 @@ struct HistoryView: View {
 
             Spacer()
 
-            // Next month button
             Button {
                 HapticManager.buttonTap()
                 viewModel.goToNextMonth()
@@ -202,18 +274,25 @@ struct HistoryView: View {
             if sessions.isEmpty {
                 emptyStateView(viewModel)
             } else {
-                ForEach(sessions) { session in
+                ForEach(Array(sessions.enumerated()), id: \.element.id) { index, session in
                     Button {
                         HapticManager.buttonTap()
                         navigationPath.append(session)
                     } label: {
                         WorkoutHistoryCard(
                             session: session,
-                            weightUnit: weightUnit
+                            weightUnit: weightUnit,
+                            hasPR: viewModel.sessionsWithPRs.contains(session.id)
                         )
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal, AppSpacing.standard)
+                    .onAppear {
+                        // Pagination: load more when last item appears
+                        if index == sessions.count - 1 && viewModel.selectedDate == nil {
+                            viewModel.loadMoreSessions()
+                        }
+                    }
                 }
             }
         }
@@ -230,6 +309,12 @@ struct HistoryView: View {
                     message: "Tap another date or clear the filter to see more workouts.",
                     actionTitle: "Clear Filter",
                     action: { viewModel.clearSelection() }
+                )
+            } else if !viewModel.searchText.isEmpty || viewModel.selectedMuscleFilter != nil {
+                EmptyStateView(
+                    icon: "magnifyingglass",
+                    title: "No Matching Workouts",
+                    message: "Try a different search term or clear filters."
                 )
             } else {
                 EmptyStateView(

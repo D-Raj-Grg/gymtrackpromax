@@ -54,6 +54,16 @@ struct WorkoutSummaryView: View {
                 .padding(.horizontal, AppSpacing.standard)
                 .accessibleButton(label: "Save Workout", hint: "Double tap to save and close")
 
+                // Share button
+                ShareLink(item: shareText) {
+                    HStack {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Share Workout")
+                    }
+                }
+                .secondaryButtonStyle()
+                .padding(.horizontal, AppSpacing.standard)
+
                 Spacer(minLength: AppSpacing.xl)
             }
             .padding(.top, AppSpacing.section)
@@ -65,6 +75,21 @@ struct WorkoutSummaryView: View {
                 showConfetti = true
             }
         }
+    }
+
+    // MARK: - Share Text
+
+    private var shareText: String {
+        var text = "\(session.workoutName) - Workout Complete!\n"
+        text += "Duration: \(session.durationDisplay)\n"
+        text += "Volume: \(session.totalVolumeDisplay) \(weightUnit.symbol)\n"
+        text += "Sets: \(session.workingSets) working sets\n"
+        text += "Exercises: \(session.exercisesCompleted)\n"
+        if !achievedPRs.isEmpty {
+            text += "PRs: \(achievedPRs.count) new personal record\(achievedPRs.count > 1 ? "s" : "")!\n"
+        }
+        text += "\n#GymTrackPro"
+        return text
     }
 
     // MARK: - Celebration Header

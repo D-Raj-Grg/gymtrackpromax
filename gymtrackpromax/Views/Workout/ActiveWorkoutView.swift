@@ -23,6 +23,7 @@ struct ActiveWorkoutView: View {
 
     @State private var viewModel: WorkoutViewModel?
     @State private var workoutNotes: String = ""
+    @State private var showDiscardConfirmation: Bool = false
 
     // MARK: - Computed
 
@@ -138,6 +139,9 @@ struct ActiveWorkoutView: View {
                     exerciseLogs: vm.exerciseLogs,
                     currentIndex: vm.currentExerciseIndex,
                     onSelectExercise: { vm.goToExercise(at: $0) },
+                    onReorderExercises: { source, destination in
+                        vm.reorderExercises(from: source, to: destination)
+                    },
                     onDismiss: { vm.showExerciseListSheet = false }
                 )
             }
@@ -155,14 +159,38 @@ struct ActiveWorkoutView: View {
                 dismiss()
             }
 
+            if viewModel?.hasLoggedSets == true {
+                Button("Complete Workout") {
+                    viewModel?.completeWorkout(notes: workoutNotes)
+                }
+            }
+
             Button("Discard Workout", role: .destructive) {
-                viewModel?.abandonWorkout(saveProgress: false)
-                dismiss()
+                if viewModel?.hasLoggedSets == true {
+                    showDiscardConfirmation = true
+                } else {
+                    viewModel?.abandonWorkout(saveProgress: false)
+                    dismiss()
+                }
             }
 
             Button("Continue Workout", role: .cancel) {}
         } message: {
             Text("What would you like to do with your current progress?")
+        }
+        .alert(
+            "Discard Workout?",
+            isPresented: $showDiscardConfirmation
+        ) {
+            Button("Delete Workout", role: .destructive) {
+                viewModel?.abandonWorkout(saveProgress: false)
+                dismiss()
+            }
+
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            let count = viewModel?.loggedSetsCount ?? 0
+            Text("You have \(count) \(count == 1 ? "set" : "sets") logged. This data will be permanently deleted.")
         }
     }
 

@@ -21,6 +21,7 @@ struct OnboardingCompleteView: View {
     @State private var isLoading: Bool = false
     @State private var hasCompletedSetup: Bool = false
     @State private var errorMessage: String?
+    @State private var showConfetti: Bool = false
 
     // MARK: - Body
 
@@ -45,6 +46,10 @@ struct OnboardingCompleteView: View {
         .padding(.horizontal, AppSpacing.standard)
         .padding(.bottom, AppSpacing.large)
         .opacity(contentOpacity)
+        .overlay {
+            ConfettiView(isActive: showConfetti)
+                .ignoresSafeArea()
+        }
         .onAppear {
             startAnimations()
             setupWorkout()
@@ -197,6 +202,7 @@ struct OnboardingCompleteView: View {
                 await MainActor.run {
                     hasCompletedSetup = true
                     isLoading = false
+                    showConfetti = true
                     // Haptic feedback for success
                     UINotificationFeedbackGenerator().notificationOccurred(.success)
                 }
