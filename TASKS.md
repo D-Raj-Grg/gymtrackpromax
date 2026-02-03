@@ -713,13 +713,13 @@
 
 ---
 
-### Milestone 3.2: HealthKit Integration
+### Milestone 3.2: HealthKit Integration ✅
 **Duration:** Week 3-5
 
-- [ ] Request HealthKit permissions
-- [ ] Write workouts to Health
-- [ ] Read body weight from Health
-- [ ] Sync historical data
+- [x] Request HealthKit permissions
+- [x] Write workouts to Health
+- [x] Read body weight from Health
+- [x] Sync historical data
 
 ---
 
@@ -786,11 +786,11 @@
 | Milestone | Tasks | Completed | Progress |
 |-----------|-------|-----------|----------|
 | 3.1 CloudKit Sync | 5 | 0 | 0% |
-| 3.2 HealthKit Integration | 4 | 0 | 0% |
+| 3.2 HealthKit Integration | 4 | 4 | 100% ✅ |
 | 3.3 Apple Watch App | 5 | 5 | 100% ✅ |
 | 3.4 Siri & Shortcuts | 5 | 5 | 100% ✅ |
 | 3.5 Pro Subscription | 7 | 0 | 0% |
-| **Total** | **26** | **10** | **38%** |
+| **Total** | **26** | **14** | **54%** |
 
 ---
 
@@ -824,6 +824,7 @@
 | 1.7 Profile | Week 8 | Week 4 | Full profile & settings |
 | 1.8 Polish | Week 10 | Week 4 | Haptics, empty/loading states |
 | 2.1 Custom Splits | Week 2 | Week 5 | Split builder, exercise picker, CRUD |
+| 3.2 HealthKit Integration | Week 5 | Feb 2026 | Save workouts, read body weight, historical sync |
 | 3.3 Apple Watch App | Week 8 | Feb 2026 | WatchConnectivity, Digital Crown input |
 | 3.4 Siri & Shortcuts | Week 9 | Feb 2026 | App Intents, Shortcuts integration |
 
