@@ -125,6 +125,8 @@ struct DashboardView: View {
             } label: {
                 profileAvatar
             }
+            .accessibilityLabel("Profile")
+            .accessibilityHint("Double tap to view your profile and settings")
         }
         .padding(.horizontal, AppSpacing.standard)
     }
@@ -175,6 +177,7 @@ struct DashboardView: View {
                     Image(systemName: "person.fill")
                         .font(.headline)
                         .foregroundStyle(Color.white)
+                        .accessibilityHidden(true)
                 }
             }
         }

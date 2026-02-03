@@ -13,6 +13,7 @@ struct ExerciseDetailSection: View {
 
     let exerciseLog: ExerciseLog
     let weightUnit: WeightUnit
+    var supersetDisplay: String? = nil
 
     // MARK: - Body
 
@@ -45,6 +46,18 @@ struct ExerciseDetailSection: View {
             // Muscle group badge
             if let exercise = exerciseLog.exercise {
                 muscleBadge(for: exercise.primaryMuscle)
+            }
+
+            // Superset badge
+            if let supersetDisplay {
+                Text(supersetDisplay)
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.gymText)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.gymAccent)
+                    .clipShape(Capsule())
             }
 
             Spacer()

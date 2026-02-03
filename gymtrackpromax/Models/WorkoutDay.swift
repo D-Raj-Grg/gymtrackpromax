@@ -49,6 +49,30 @@ final class WorkoutDay {
         plannedExercises.sorted { $0.exerciseOrder < $1.exerciseOrder }
     }
 
+    /// Exercises grouped by superset (standalone exercises become single-item groups)
+    var exerciseGroups: [[PlannedExercise]] {
+        var groups: [[PlannedExercise]] = []
+        var usedIds = Set<UUID>()
+
+        for exercise in sortedExercises {
+            guard !usedIds.contains(exercise.id) else { continue }
+
+            if let groupId = exercise.supersetGroupId {
+                // Collect all exercises in this superset group
+                let group = sortedExercises
+                    .filter { $0.supersetGroupId == groupId }
+                    .sorted { $0.supersetOrder < $1.supersetOrder }
+                for e in group { usedIds.insert(e.id) }
+                groups.append(group)
+            } else {
+                usedIds.insert(exercise.id)
+                groups.append([exercise])
+            }
+        }
+
+        return groups
+    }
+
     /// Number of exercises in this workout
     var exerciseCount: Int {
         plannedExercises.count

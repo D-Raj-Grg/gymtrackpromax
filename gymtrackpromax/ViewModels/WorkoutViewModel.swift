@@ -20,14 +20,16 @@ final class WorkoutViewModel {
     /// Current workout session
     var currentSession: WorkoutSession?
 
-    /// Elapsed time since workout started
-    var elapsedTime: TimeInterval = 0
+    /// Start time for elapsed time calculation (used by TimelineView in ActiveWorkoutView)
+    var workoutStartTime: Date?
 
-    /// Formatted elapsed time string
-    var elapsedTimeDisplay: String {
-        let hours = Int(elapsedTime) / 3600
-        let minutes = (Int(elapsedTime) % 3600) / 60
-        let seconds = Int(elapsedTime) % 60
+    /// Compute elapsed time display from start time
+    static func formatElapsedTime(from startTime: Date?) -> String {
+        guard let startTime else { return "00:00" }
+        let elapsed = Int(Date().timeIntervalSince(startTime))
+        let hours = elapsed / 3600
+        let minutes = (elapsed % 3600) / 60
+        let seconds = elapsed % 60
 
         if hours > 0 {
             return String(format: "%d:%02d:%02d", hours, minutes, seconds)
@@ -74,6 +76,62 @@ final class WorkoutViewModel {
     /// Whether there's a previous exercise
     var hasPreviousExercise: Bool {
         currentExerciseIndex > 0
+    }
+
+    // MARK: - Superset State
+
+    /// Whether the current exercise is part of a superset
+    var isCurrentExerciseInSuperset: Bool {
+        currentExerciseLog?.isInSuperset ?? false
+    }
+
+    /// The superset group ID for the current exercise (nil if standalone)
+    var currentSupersetGroupId: UUID? {
+        currentExerciseLog?.supersetGroupId
+    }
+
+    /// All exercise logs in the current superset group
+    var currentSupersetLogs: [ExerciseLog] {
+        guard let groupId = currentSupersetGroupId else { return [] }
+        return exerciseLogs
+            .filter { $0.supersetGroupId == groupId }
+            .sorted { $0.supersetOrder < $1.supersetOrder }
+    }
+
+    /// Position of current exercise within its superset (1-based)
+    var supersetPosition: Int {
+        guard let groupId = currentSupersetGroupId else { return 0 }
+        let group = currentSupersetLogs
+        guard let currentId = currentExerciseLog?.id else { return 0 }
+        return (group.firstIndex(where: { $0.id == currentId }) ?? 0) + 1
+    }
+
+    /// Total exercises in current superset
+    var supersetSize: Int {
+        currentSupersetLogs.count
+    }
+
+    /// Display string for superset position (e.g., "Superset 1/2")
+    var supersetPositionDisplay: String? {
+        guard isCurrentExerciseInSuperset else { return nil }
+        return "Superset \(supersetPosition)/\(supersetSize)"
+    }
+
+    /// Whether the current exercise is the last in its superset group
+    private var isLastInSuperset: Bool {
+        supersetPosition >= supersetSize
+    }
+
+    /// Next exercise log in the superset group (nil if last or not in superset)
+    private var nextSupersetExerciseIndex: Int? {
+        guard let groupId = currentSupersetGroupId else { return nil }
+        let group = currentSupersetLogs
+        guard let currentId = currentExerciseLog?.id,
+              let currentPos = group.firstIndex(where: { $0.id == currentId }),
+              currentPos + 1 < group.count else { return nil }
+
+        let nextLog = group[currentPos + 1]
+        return exerciseLogs.firstIndex(where: { $0.id == nextLog.id })
     }
 
     // MARK: - Set Input State
@@ -148,7 +206,6 @@ final class WorkoutViewModel {
 
     private var modelContext: ModelContext
     private var workoutService = WorkoutService.shared
-    private var elapsedTimer: Timer?
     private var restTimerObserver: Any?
     private var dayEditedObserver: Any?
 
@@ -169,15 +226,12 @@ final class WorkoutViewModel {
         )
 
         currentExerciseIndex = 0
-        elapsedTime = 0
+        workoutStartTime = currentSession?.startTime ?? Date()
         achievedPRs = []
         isWorkoutCompleted = false
 
         // Initialize set input with suggested values
         initializeSetInput()
-
-        // Start elapsed time timer
-        startElapsedTimer()
 
         // Start Live Activity
         startLiveActivity()
@@ -201,14 +255,11 @@ final class WorkoutViewModel {
         achievedPRs = []
         isWorkoutCompleted = false
 
-        // Calculate elapsed time since start
-        elapsedTime = Date().timeIntervalSince(session.startTime)
+        // Store start time for TimelineView-based elapsed display
+        workoutStartTime = session.startTime
 
         // Initialize set input
         initializeSetInput()
-
-        // Start elapsed time timer
-        startElapsedTimer()
 
         // Start Live Activity
         startLiveActivity()
@@ -224,7 +275,6 @@ final class WorkoutViewModel {
     func completeWorkout(notes: String? = nil) {
         guard let session = currentSession else { return }
 
-        elapsedTimer?.invalidate()
         timerService.stop()
 
         workoutService.endWorkout(
@@ -243,6 +293,9 @@ final class WorkoutViewModel {
         // Refresh widgets with updated data
         WidgetUpdateService.reloadAllTimelines()
 
+        // Index completed workout in Spotlight
+        SpotlightService.shared.indexWorkoutSession(session)
+
         // Haptic feedback
         HapticManager.workoutComplete()
     }
@@ -251,7 +304,6 @@ final class WorkoutViewModel {
     func abandonWorkout(saveProgress: Bool) {
         guard let session = currentSession else { return }
 
-        elapsedTimer?.invalidate()
         timerService.stop()
 
         workoutService.abandonWorkout(
@@ -312,13 +364,32 @@ final class WorkoutViewModel {
         isWarmupSet = false
         isDropset = false
 
-        // Auto-start rest timer if not a warmup
-        if !setLog.isWarmup {
-            startRestTimer()
+        // Superset auto-advance logic
+        if isCurrentExerciseInSuperset && !setLog.isWarmup {
+            if let nextIndex = nextSupersetExerciseIndex {
+                // Advance to next exercise in superset (short/no rest)
+                currentExerciseIndex = nextIndex
+                initializeSetInput()
+                updateLiveActivity()
+                HapticManager.buttonTap()
+            } else {
+                // Completed a round of the superset — full rest
+                // Go back to first exercise in superset for next round
+                if let firstLog = currentSupersetLogs.first,
+                   let firstIndex = exerciseLogs.firstIndex(where: { $0.id == firstLog.id }) {
+                    currentExerciseIndex = firstIndex
+                    initializeSetInput()
+                }
+                startRestTimer()
+                updateLiveActivity()
+            }
+        } else {
+            // Normal (non-superset) behavior
+            if !setLog.isWarmup {
+                startRestTimer()
+            }
+            updateLiveActivity()
         }
-
-        // Update Live Activity (rest timer update handled in startRestTimer)
-        updateLiveActivity()
     }
 
     /// Delete a set
@@ -511,16 +582,6 @@ final class WorkoutViewModel {
     }
 
     // MARK: - Private Methods
-
-    private func startElapsedTimer() {
-        elapsedTimer?.invalidate()
-        elapsedTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self else { return }
-            Task { @MainActor [weak self] in
-                self?.elapsedTime += 1
-            }
-        }
-    }
 
     // MARK: - Live Activity Helpers
 

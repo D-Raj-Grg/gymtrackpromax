@@ -137,6 +137,7 @@ struct ProgressView: View {
             Image(systemName: "chart.line.uptrend.xyaxis")
                 .font(.title)
                 .foregroundStyle(Color.gymPrimary)
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, AppSpacing.standard)
     }
@@ -172,6 +173,8 @@ struct ProgressView: View {
                 )
         }
         .accessibilityLabel(range.displayName)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityHint("Double tap to show \(range.displayName.lowercased()) data")
     }
 
     // MARK: - Summary Stats Section
@@ -326,6 +329,7 @@ private struct SummaryStatCard: View {
                 Image(systemName: icon)
                     .font(.caption)
                     .foregroundStyle(color)
+                    .accessibilityHidden(true)
 
                 Text(title)
                     .font(.caption)
@@ -351,6 +355,8 @@ private struct SummaryStatCard: View {
             RoundedRectangle(cornerRadius: AppCornerRadius.card)
                 .fill(Color.gymCard)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value)\(unit != nil ? " \(unit!)" : "")")
     }
 }
 

@@ -32,6 +32,8 @@ struct WorkoutDayEditorView: View {
     @State private var editingExerciseIndex: Int?
     @State private var showingDiscardAlert: Bool = false
     @State private var isReorderingExercises: Bool = false
+    @State private var supersetSelectionMode: Bool = false
+    @State private var supersetSelectedIndices: Set<Int> = []
 
     // MARK: - Computed Properties
 
@@ -242,35 +244,59 @@ struct WorkoutDayEditorView: View {
 
                 Spacer()
 
-                // Browse Library button
-                Button {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    showingExerciseLibrary = true
-                } label: {
-                    HStack(spacing: AppSpacing.xs) {
-                        Image(systemName: "books.vertical")
-                        Text("Browse")
+                if !viewModel.currentDayExercises.isEmpty {
+                    // Superset toggle button
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        supersetSelectionMode.toggle()
+                        supersetSelectedIndices.removeAll()
+                    } label: {
+                        HStack(spacing: AppSpacing.xs) {
+                            Image(systemName: supersetSelectionMode ? "xmark" : "link")
+                            Text(supersetSelectionMode ? "Cancel" : "Superset")
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(supersetSelectionMode ? Color.gymWarning : Color.gymAccent)
                     }
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.gymTextMuted)
                 }
 
-                // Add exercises button
-                Button {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    showingExercisePicker = true
-                } label: {
-                    HStack(spacing: AppSpacing.xs) {
-                        Image(systemName: "plus")
-                        Text("Add")
+                if !supersetSelectionMode {
+                    // Browse Library button
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        showingExerciseLibrary = true
+                    } label: {
+                        HStack(spacing: AppSpacing.xs) {
+                            Image(systemName: "books.vertical")
+                            Text("Browse")
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.gymTextMuted)
                     }
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.gymPrimary)
+
+                    // Add exercises button
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        showingExercisePicker = true
+                    } label: {
+                        HStack(spacing: AppSpacing.xs) {
+                            Image(systemName: "plus")
+                            Text("Add")
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.gymPrimary)
+                    }
                 }
             }
             .padding(.horizontal, AppSpacing.standard)
+
+            // Superset creation bar
+            if supersetSelectionMode {
+                supersetSelectionBar
+            }
 
             if viewModel.currentDayExercises.isEmpty {
                 emptyExercisesState
@@ -278,6 +304,38 @@ struct WorkoutDayEditorView: View {
                 exercisesList
             }
         }
+    }
+
+    // MARK: - Superset Selection Bar
+
+    private var supersetSelectionBar: some View {
+        HStack {
+            Text("Select 2-3 exercises to group")
+                .font(.caption)
+                .foregroundStyle(Color.gymTextMuted)
+
+            Spacer()
+
+            Button {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                let indices = Array(supersetSelectedIndices).sorted()
+                viewModel.createSuperset(exerciseIndices: indices)
+                supersetSelectionMode = false
+                supersetSelectedIndices.removeAll()
+            } label: {
+                Text("Create Superset (\(supersetSelectedIndices.count))")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.gymText)
+                    .padding(.horizontal, AppSpacing.component)
+                    .padding(.vertical, AppSpacing.small)
+                    .background(Color.gymAccent)
+                    .clipShape(Capsule())
+            }
+            .disabled(supersetSelectedIndices.count < 2)
+            .opacity(supersetSelectedIndices.count < 2 ? 0.5 : 1)
+        }
+        .padding(.horizontal, AppSpacing.standard)
     }
 
     // MARK: - Empty Exercises State
@@ -317,33 +375,174 @@ struct WorkoutDayEditorView: View {
     // MARK: - Exercises List
 
     private var exercisesList: some View {
-        ReorderableForEach(
-            items: viewModel.currentDayExercises,
-            isReordering: $isReorderingExercises,
-            onMove: { source, destination in
-                viewModel.moveExercisesInCurrentDay(from: source, to: destination)
-            }
-        ) { exercise, dragHandle in
-            SwipeToDeleteContainer(isDisabled: isReorderingExercises, onDelete: {
-                guard let index = viewModel.currentDayExercises.firstIndex(where: { $0.id == exercise.id }) else { return }
-                withAnimation(AppAnimation.spring) {
-                    viewModel.removeExerciseFromCurrentDay(at: index)
+        VStack(spacing: AppSpacing.small) {
+            if supersetSelectionMode {
+                // Simple list for superset selection
+                ForEach(Array(viewModel.currentDayExercises.enumerated()), id: \.element.id) { index, exercise in
+                    supersetSelectableRow(exercise: exercise, index: index)
                 }
-            }) {
-                PlannedExerciseRow(
-                    exercise: exercise,
-                    onTap: {
-                        guard let index = viewModel.currentDayExercises.firstIndex(where: { $0.id == exercise.id }) else { return }
-                        editingExerciseIndex = index
-                        showingExerciseEditor = true
-                    },
-                    onDelete: nil,
-                    showDragHandle: false,
-                    leadingAccessory: dragHandle
-                )
+                .padding(.horizontal, AppSpacing.standard)
+            } else {
+                // Grouped list showing supersets
+                ForEach(viewModel.currentDayExerciseGroups, id: \.first!.id) { group in
+                    if group.count > 1 {
+                        // Superset group
+                        supersetGroupView(group)
+                            .padding(.horizontal, AppSpacing.standard)
+                    } else if let exercise = group.first {
+                        // Standalone exercise
+                        standaloneExerciseRow(exercise)
+                            .padding(.horizontal, AppSpacing.standard)
+                    }
+                }
             }
         }
-        .padding(.horizontal, AppSpacing.standard)
+    }
+
+    // MARK: - Superset Group View
+
+    private func supersetGroupView(_ group: [DraftPlannedExercise]) -> some View {
+        VStack(spacing: 0) {
+            // Superset header
+            HStack {
+                Image(systemName: "link")
+                    .font(.caption)
+                    .foregroundStyle(Color.gymAccent)
+
+                Text("Superset")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color.gymAccent)
+
+                Spacer()
+
+                Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    if let groupId = group.first?.supersetGroupId {
+                        withAnimation(AppAnimation.spring) {
+                            viewModel.breakSuperset(groupId: groupId)
+                        }
+                    }
+                } label: {
+                    HStack(spacing: AppSpacing.xs) {
+                        Image(systemName: "link.badge.plus")
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(Color.gymTextMuted, Color.gymWarning)
+                        Text("Ungroup")
+                            .font(.caption)
+                            .foregroundStyle(Color.gymTextMuted)
+                    }
+                }
+            }
+            .padding(.horizontal, AppSpacing.component)
+            .padding(.vertical, AppSpacing.small)
+
+            // Grouped exercises
+            ForEach(group, id: \.id) { exercise in
+                SwipeToDeleteContainer(isDisabled: isReorderingExercises, onDelete: {
+                    guard let index = viewModel.currentDayExercises.firstIndex(where: { $0.id == exercise.id }) else { return }
+                    withAnimation(AppAnimation.spring) {
+                        viewModel.removeFromSuperset(exerciseIndex: index)
+                        viewModel.removeExerciseFromCurrentDay(at: index)
+                    }
+                }) {
+                    PlannedExerciseRow(
+                        exercise: exercise,
+                        onTap: {
+                            guard let index = viewModel.currentDayExercises.firstIndex(where: { $0.id == exercise.id }) else { return }
+                            editingExerciseIndex = index
+                            showingExerciseEditor = true
+                        },
+                        onDelete: nil,
+                        showDragHandle: false
+                    )
+                }
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card)
+                .fill(Color.gymAccent.opacity(0.08))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card)
+                .strokeBorder(Color.gymAccent.opacity(0.3), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Standalone Exercise Row
+
+    private func standaloneExerciseRow(_ exercise: DraftPlannedExercise) -> some View {
+        SwipeToDeleteContainer(isDisabled: isReorderingExercises, onDelete: {
+            guard let index = viewModel.currentDayExercises.firstIndex(where: { $0.id == exercise.id }) else { return }
+            withAnimation(AppAnimation.spring) {
+                viewModel.removeExerciseFromCurrentDay(at: index)
+            }
+        }) {
+            PlannedExerciseRow(
+                exercise: exercise,
+                onTap: {
+                    guard let index = viewModel.currentDayExercises.firstIndex(where: { $0.id == exercise.id }) else { return }
+                    editingExerciseIndex = index
+                    showingExerciseEditor = true
+                },
+                onDelete: nil,
+                showDragHandle: false
+            )
+        }
+    }
+
+    // MARK: - Superset Selectable Row
+
+    private func supersetSelectableRow(exercise: DraftPlannedExercise, index: Int) -> some View {
+        let isSelected = supersetSelectedIndices.contains(index)
+        let isAlreadyInSuperset = exercise.isInSuperset
+
+        return Button {
+            if isAlreadyInSuperset { return }
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            if isSelected {
+                supersetSelectedIndices.remove(index)
+            } else if supersetSelectedIndices.count < 3 {
+                supersetSelectedIndices.insert(index)
+            }
+        } label: {
+            HStack(spacing: AppSpacing.component) {
+                // Selection indicator
+                Image(systemName: isSelected ? "checkmark.circle.fill" : (isAlreadyInSuperset ? "link.circle.fill" : "circle"))
+                    .font(.title3)
+                    .foregroundStyle(isSelected ? Color.gymAccent : (isAlreadyInSuperset ? Color.gymTextMuted : Color.gymBorder))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(exercise.exerciseName)
+                        .font(.body)
+                        .fontWeight(.medium)
+                        .foregroundStyle(isAlreadyInSuperset ? Color.gymTextMuted : Color.gymText)
+
+                    Text(exercise.primaryMuscle.displayName)
+                        .font(.caption)
+                        .foregroundStyle(Color.gymTextMuted)
+                }
+
+                Spacer()
+
+                if isAlreadyInSuperset {
+                    Text("In superset")
+                        .font(.caption)
+                        .foregroundStyle(Color.gymTextMuted)
+                }
+            }
+            .padding(AppSpacing.component)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.card)
+                    .fill(isSelected ? Color.gymAccent.opacity(0.1) : Color.gymCard)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.card)
+                    .strokeBorder(isSelected ? Color.gymAccent.opacity(0.5) : Color.clear, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isAlreadyInSuperset)
     }
 
     // MARK: - Stats Summary

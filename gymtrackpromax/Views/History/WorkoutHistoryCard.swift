@@ -37,6 +37,7 @@ struct WorkoutHistoryCard: View {
                         Image(systemName: "star.fill")
                             .font(.caption)
                             .foregroundStyle(Color.gymWarning)
+                            .accessibilityHidden(true)
                     }
                 }
 
@@ -84,6 +85,7 @@ struct WorkoutHistoryCard: View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.caption2)
+                .accessibilityHidden(true)
             Text(value)
         }
     }

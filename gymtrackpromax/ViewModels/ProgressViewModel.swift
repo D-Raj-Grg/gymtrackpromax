@@ -113,6 +113,18 @@ final class ProgressViewModel {
     var prsInRange: Int = 0
     var muscleDistribution: [MuscleDistribution] = []
 
+    // Cache for all-sessions computation (avoid rescanning when only time range changes)
+    private var cachedAllSessionData: AllSessionData?
+    private var cachedSessionCount: Int = 0
+
+    /// Pre-computed data from all sessions
+    private struct AllSessionData {
+        var exerciseLogs: [UUID: (exercise: Exercise, logs: [(session: WorkoutSession, log: ExerciseLog)])] = [:]
+        var exerciseBests: [UUID: (exercise: Exercise, weight: Double, reps: Int, estimated1RM: Double, date: Date, sessionId: UUID?)] = [:]
+        var prSessionIds: Set<UUID> = []
+        var exercisePRTimeline: [UUID: [(estimated1RM: Double, sessionId: UUID)]] = [:]
+    }
+
     // MARK: - Initialization
 
     init(modelContext: ModelContext) {
@@ -126,6 +138,14 @@ final class ProgressViewModel {
         isLoading = true
         defer { isLoading = false }
 
+        let completedSessions = sessions.filter { $0.isCompleted }
+
+        // Rebuild all-sessions cache if session count changed
+        if completedSessions.count != cachedSessionCount {
+            cachedSessionCount = completedSessions.count
+            cachedAllSessionData = buildAllSessionData(sessions: completedSessions)
+        }
+
         let filteredSessions = filterSessionsByTimeRange(sessions)
 
         // Calculate volume data
@@ -134,8 +154,19 @@ final class ProgressViewModel {
         // Calculate top exercises
         topExercises = calculateTopExercises(sessions: filteredSessions, limit: 5)
 
-        // Calculate personal records
-        personalRecords = calculatePersonalRecords(sessions: sessions) // Use all sessions for PRs
+        // Calculate personal records from cache
+        if let cached = cachedAllSessionData {
+            personalRecords = cached.exerciseBests.values
+                .map { PRRecord(
+                    exercise: $0.exercise,
+                    weight: $0.weight,
+                    reps: $0.reps,
+                    estimated1RM: $0.estimated1RM,
+                    date: $0.date,
+                    sessionId: $0.sessionId
+                )}
+                .sorted { $0.date > $1.date }
+        }
 
         // Calculate summary stats
         totalVolumeInRange = filteredSessions.reduce(0) { $0 + $1.totalVolume }
@@ -144,6 +175,42 @@ final class ProgressViewModel {
 
         // Calculate muscle distribution
         muscleDistribution = calculateMuscleDistribution(sessions: filteredSessions)
+    }
+
+    /// Build cached data from all sessions (single pass)
+    private func buildAllSessionData(sessions: [WorkoutSession]) -> AllSessionData {
+        var data = AllSessionData()
+        let sortedSessions = sessions.sorted { $0.startTime < $1.startTime }
+
+        for session in sortedSessions {
+            for log in session.exerciseLogs {
+                guard let exercise = log.exercise else { continue }
+
+                // Collect exercise logs
+                if data.exerciseLogs[exercise.id] == nil {
+                    data.exerciseLogs[exercise.id] = (exercise: exercise, logs: [])
+                }
+                data.exerciseLogs[exercise.id]?.logs.append((session: session, log: log))
+
+                // Track PRs
+                for set in log.workingSetsArray {
+                    let currentBest = data.exerciseBests[exercise.id]?.estimated1RM ?? 0
+                    if set.estimated1RM > currentBest {
+                        data.exerciseBests[exercise.id] = (
+                            exercise: exercise,
+                            weight: set.weight,
+                            reps: set.reps,
+                            estimated1RM: set.estimated1RM,
+                            date: session.startTime,
+                            sessionId: session.id
+                        )
+                        data.prSessionIds.insert(session.id)
+                    }
+                }
+            }
+        }
+
+        return data
     }
 
     // MARK: - Private Helpers

@@ -14,6 +14,11 @@ struct WorkoutTabView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var users: [User]
 
+    // MARK: - Bindings
+
+    /// Workout day ID to start from Siri intent
+    @Binding var intentWorkoutDayId: UUID?
+
     // MARK: - State
 
     @State private var selectedWorkoutDay: WorkoutDay?
@@ -74,6 +79,15 @@ struct WorkoutTabView: View {
             NavigationStack {
                 SplitListView()
             }
+        }
+        .onChange(of: intentWorkoutDayId) { _, workoutDayId in
+            guard let workoutDayId else { return }
+            // Find the workout day and start it
+            if let workoutDay = activeSplit?.workoutDays.first(where: { $0.id == workoutDayId }) {
+                selectedWorkoutDay = workoutDay
+            }
+            // Clear after handling
+            intentWorkoutDayId = nil
         }
     }
 
@@ -470,7 +484,7 @@ struct WorkoutTabView: View {
     pullDay.split = split
     legDay.split = split
 
-    return WorkoutTabView()
+    return WorkoutTabView(intentWorkoutDayId: .constant(nil))
         .modelContainer(container)
 }
 
@@ -485,6 +499,6 @@ struct WorkoutTabView: View {
     let user = User(name: "Test User")
     container.mainContext.insert(user)
 
-    return WorkoutTabView()
+    return WorkoutTabView(intentWorkoutDayId: .constant(nil))
         .modelContainer(container)
 }

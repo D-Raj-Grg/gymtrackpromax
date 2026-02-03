@@ -151,6 +151,7 @@ struct TodayWorkoutCard: View {
             Image(systemName: "bed.double.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(Color.gymSuccess)
+                .accessibilityHidden(true)
 
             Text("Rest Day")
                 .font(.title2)
@@ -183,6 +184,8 @@ struct TodayWorkoutCard: View {
                 }
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Muscle groups: \(muscles.map(\.displayName).joined(separator: ", "))")
     }
 
     private func statItem(icon: String, value: String, label: String) -> some View {
@@ -190,6 +193,7 @@ struct TodayWorkoutCard: View {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundStyle(Color.gymPrimary)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(.subheadline)
@@ -200,6 +204,8 @@ struct TodayWorkoutCard: View {
                 .font(.caption)
                 .foregroundStyle(Color.gymTextMuted)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(value) \(label)")
     }
 
     // MARK: - Helpers

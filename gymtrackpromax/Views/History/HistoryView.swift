@@ -140,6 +140,8 @@ struct HistoryView: View {
             .font(.subheadline)
             .foregroundStyle(Color.gymText)
             .autocorrectionDisabled()
+            .accessibilityLabel("Search workouts")
+            .accessibilityHint("Type an exercise name to filter workout history")
 
             if !viewModel.searchText.isEmpty {
                 Button {
@@ -150,6 +152,7 @@ struct HistoryView: View {
                         .font(.subheadline)
                         .foregroundStyle(Color.gymTextMuted)
                 }
+                .accessibilityLabel("Clear search")
             }
         }
         .padding(AppSpacing.component)
@@ -185,6 +188,8 @@ struct HistoryView: View {
                                     .fill(isSelected ? Color.gymPrimary : Color.gymCard)
                             )
                     }
+                    .accessibilityLabel("\(muscle.displayName)\(isSelected ? ", selected" : "")")
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
             }
             .padding(.horizontal, AppSpacing.standard)
@@ -205,6 +210,7 @@ struct HistoryView: View {
                     .foregroundStyle(Color.gymPrimary)
                     .frame(width: 44, height: 44)
             }
+            .accessibilityLabel("Previous month")
 
             Spacer()
 
@@ -212,6 +218,7 @@ struct HistoryView: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.gymText)
+                .accessibilityLabel(viewModel.monthYearDisplay)
 
             Spacer()
 
@@ -226,6 +233,7 @@ struct HistoryView: View {
                     .frame(width: 44, height: 44)
             }
             .disabled(!viewModel.canGoToNextMonth)
+            .accessibilityLabel("Next month")
         }
         .padding(.horizontal, AppSpacing.standard)
     }

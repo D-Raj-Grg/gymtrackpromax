@@ -106,6 +106,7 @@ struct WorkoutSummaryView: View {
                     .font(.system(size: 60))
                     .foregroundStyle(Color.gymSuccess)
             }
+            .accessibilityHidden(true)
             .scaleEffect(showConfetti ? 1 : 0.5)
             .opacity(showConfetti ? 1 : 0)
 
@@ -171,6 +172,7 @@ struct WorkoutSummaryView: View {
             HStack {
                 Image(systemName: "star.fill")
                     .foregroundStyle(Color.gymWarning)
+                    .accessibilityHidden(true)
                 Text("Personal Records")
                     .font(.headline)
                     .foregroundStyle(Color.gymText)
@@ -218,6 +220,7 @@ struct StatCard: View {
             Image(systemName: icon)
                 .font(.title2)
                 .foregroundStyle(color)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(.title2)
@@ -232,6 +235,8 @@ struct StatCard: View {
         .padding(AppSpacing.standard)
         .background(Color.gymCard)
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 
@@ -247,6 +252,7 @@ struct PRRow: View {
             Image(systemName: "star.fill")
                 .font(.headline)
                 .foregroundStyle(Color.gymWarning)
+                .accessibilityHidden(true)
 
             // Exercise name
             VStack(alignment: .leading, spacing: 2) {

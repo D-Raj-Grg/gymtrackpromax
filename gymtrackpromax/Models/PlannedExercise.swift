@@ -20,6 +20,8 @@ final class PlannedExercise {
     var targetRepsMax: Int
     var restSeconds: Int
     var notes: String?
+    var supersetGroupId: UUID? = nil
+    var supersetOrder: Int = 0
 
     // MARK: - Relationships
 
@@ -35,7 +37,9 @@ final class PlannedExercise {
         targetRepsMin: Int = 8,
         targetRepsMax: Int = 12,
         restSeconds: Int = 90,
-        notes: String? = nil
+        notes: String? = nil,
+        supersetGroupId: UUID? = nil,
+        supersetOrder: Int = 0
     ) {
         self.id = id
         self.exerciseOrder = exerciseOrder
@@ -44,9 +48,16 @@ final class PlannedExercise {
         self.targetRepsMax = targetRepsMax
         self.restSeconds = restSeconds
         self.notes = notes
+        self.supersetGroupId = supersetGroupId
+        self.supersetOrder = supersetOrder
     }
 
     // MARK: - Computed Properties
+
+    /// Whether this exercise is part of a superset
+    var isInSuperset: Bool {
+        supersetGroupId != nil
+    }
 
     /// Display string for target reps
     var targetRepsDisplay: String {

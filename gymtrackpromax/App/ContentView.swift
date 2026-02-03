@@ -5,6 +5,7 @@
 //  Created by Claude Code on 27/01/26.
 //
 
+import CoreSpotlight
 import SwiftUI
 import SwiftData
 
@@ -16,6 +17,12 @@ struct ContentView: View {
 
     /// Uses @AppStorage to automatically sync with UserDefaults
     @AppStorage(UserDefaultsKeys.hasCompletedOnboarding) private var hasCompletedOnboarding = false
+
+    /// Spotlight deep-link destination
+    @State private var spotlightDestination: SpotlightDestination?
+
+    /// Workout day ID to start from Siri intent
+    @State private var intentWorkoutDayId: UUID?
 
     // MARK: - Computed Properties
 
@@ -34,7 +41,10 @@ struct ContentView: View {
 
             if shouldShowMainApp {
                 // Main app content with tab navigation
-                MainTabView()
+                MainTabView(
+                    spotlightDestination: $spotlightDestination,
+                    intentWorkoutDayId: $intentWorkoutDayId
+                )
             } else {
                 // Onboarding flow
                 OnboardingContainerView(onComplete: {
@@ -43,6 +53,15 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .onContinueUserActivity(CSSearchableItemActionType) { userActivity in
+            spotlightDestination = SpotlightService.shared.handleSearchResult(userActivity)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .startWorkoutFromIntent)) { notification in
+            if let workoutDayIdString = notification.userInfo?["workoutDayId"] as? String,
+               let workoutDayId = UUID(uuidString: workoutDayIdString) {
+                intentWorkoutDayId = workoutDayId
+            }
+        }
     }
 }
 

@@ -54,6 +54,8 @@ struct SplitSelectionView: View {
                     .foregroundStyle(Color.gymText)
                     .frame(width: 44, height: 44)
             }
+            .accessibilityLabel("Back")
+            .accessibilityHint("Go to previous step")
 
             Spacer()
 

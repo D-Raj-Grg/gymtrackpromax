@@ -23,6 +23,7 @@ struct RecentPRsCard: View {
                 Image(systemName: "trophy.fill")
                     .font(.title3)
                     .foregroundStyle(Color.gymWarning)
+                    .accessibilityHidden(true)
 
                 Text("Recent PRs")
                     .font(.headline)
@@ -68,6 +69,7 @@ struct RecentPRsCard: View {
             Image(systemName: "star.fill")
                 .font(.caption)
                 .foregroundStyle(Color.gymWarning)
+                .accessibilityHidden(true)
 
             // Exercise name
             Text(pr.exerciseName)

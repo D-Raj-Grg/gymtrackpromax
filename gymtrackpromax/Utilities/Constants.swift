@@ -164,4 +164,15 @@ extension Notification.Name {
 
     /// Posted when a workout day is edited while a session is in progress
     static let workoutDayEdited = Notification.Name("workoutDayEdited")
+
+    /// Posted when user wants to switch to the workout tab (e.g., from Profile settings)
+    static let switchToWorkoutTab = Notification.Name("switchToWorkoutTab")
+
+    /// Posted when a workout should be started from a Siri intent
+    /// userInfo contains "workoutDayId" as String
+    static let startWorkoutFromIntent = Notification.Name("startWorkoutFromIntent")
+
+    /// Posted when a set is logged from a Siri intent
+    /// userInfo contains "exerciseLogId" and "setId" as Strings
+    static let setLoggedFromIntent = Notification.Name("setLoggedFromIntent")
 }

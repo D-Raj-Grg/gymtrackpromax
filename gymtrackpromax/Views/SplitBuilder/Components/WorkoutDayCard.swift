@@ -17,6 +17,11 @@ struct WorkoutDayCard: View {
     var onDelete: (() -> Void)?
     var showDragHandle: Bool = true
 
+    /// Number of distinct superset groups in this day
+    private var supersetCount: Int {
+        Set(day.exercises.compactMap { $0.supersetGroupId }).count
+    }
+
     // MARK: - Body
 
     var body: some View {
@@ -83,6 +88,17 @@ struct WorkoutDayCard: View {
                         }
                     }
                     .foregroundStyle(Color.gymTextMuted)
+                }
+
+                // Superset indicator
+                if supersetCount > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "link")
+                            .font(.caption2)
+                        Text("\(supersetCount) superset\(supersetCount == 1 ? "" : "s")")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(Color.gymAccent)
                 }
 
                 // Exercise preview

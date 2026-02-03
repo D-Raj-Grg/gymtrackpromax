@@ -98,6 +98,13 @@ struct DraftPlannedExercise: Identifiable, Equatable {
     var targetRepsMax: Int
     var restSeconds: Int
     var notes: String?
+    var supersetGroupId: UUID?
+    var supersetOrder: Int
+
+    /// Whether this exercise is part of a superset
+    var isInSuperset: Bool {
+        supersetGroupId != nil
+    }
 
     init(
         id: UUID = UUID(),
@@ -109,7 +116,9 @@ struct DraftPlannedExercise: Identifiable, Equatable {
         targetRepsMin: Int = WorkoutDefaults.minReps,
         targetRepsMax: Int = WorkoutDefaults.maxReps,
         restSeconds: Int = WorkoutDefaults.restTimeSeconds,
-        notes: String? = nil
+        notes: String? = nil,
+        supersetGroupId: UUID? = nil,
+        supersetOrder: Int = 0
     ) {
         self.id = id
         self.exerciseId = exerciseId
@@ -121,6 +130,8 @@ struct DraftPlannedExercise: Identifiable, Equatable {
         self.targetRepsMax = targetRepsMax
         self.restSeconds = restSeconds
         self.notes = notes
+        self.supersetGroupId = supersetGroupId
+        self.supersetOrder = supersetOrder
     }
 
     init(from planned: PlannedExercise) {
@@ -134,6 +145,8 @@ struct DraftPlannedExercise: Identifiable, Equatable {
         self.targetRepsMax = planned.targetRepsMax
         self.restSeconds = planned.restSeconds
         self.notes = planned.notes
+        self.supersetGroupId = planned.supersetGroupId
+        self.supersetOrder = planned.supersetOrder
     }
 
     /// Display string for target reps
@@ -409,6 +422,75 @@ final class SplitBuilderViewModel {
         }
     }
 
+    // MARK: - Superset Operations
+
+    /// Create a superset from the given exercise indices in the current day
+    func createSuperset(exerciseIndices: [Int]) {
+        guard exerciseIndices.count >= 2 else { return }
+
+        let groupId = UUID()
+        for (supersetOrder, exerciseIndex) in exerciseIndices.enumerated() {
+            guard currentDayExercises.indices.contains(exerciseIndex) else { continue }
+            currentDayExercises[exerciseIndex].supersetGroupId = groupId
+            currentDayExercises[exerciseIndex].supersetOrder = supersetOrder
+        }
+    }
+
+    /// Remove a single exercise from its superset group
+    func removeFromSuperset(exerciseIndex: Int) {
+        guard currentDayExercises.indices.contains(exerciseIndex) else { return }
+        let groupId = currentDayExercises[exerciseIndex].supersetGroupId
+        currentDayExercises[exerciseIndex].supersetGroupId = nil
+        currentDayExercises[exerciseIndex].supersetOrder = 0
+
+        // If only one exercise remains in the group, ungroup it too
+        if let groupId {
+            let remaining = currentDayExercises.indices.filter {
+                currentDayExercises[$0].supersetGroupId == groupId
+            }
+            if remaining.count == 1 {
+                currentDayExercises[remaining[0]].supersetGroupId = nil
+                currentDayExercises[remaining[0]].supersetOrder = 0
+            }
+        }
+    }
+
+    /// Break an entire superset group
+    func breakSuperset(groupId: UUID) {
+        for i in currentDayExercises.indices {
+            if currentDayExercises[i].supersetGroupId == groupId {
+                currentDayExercises[i].supersetGroupId = nil
+                currentDayExercises[i].supersetOrder = 0
+            }
+        }
+    }
+
+    /// Get exercise groups for the current day (standalone exercises become single-item groups)
+    var currentDayExerciseGroups: [[DraftPlannedExercise]] {
+        var groups: [[DraftPlannedExercise]] = []
+        var usedIndices = Set<Int>()
+
+        for (index, exercise) in currentDayExercises.enumerated() {
+            guard !usedIndices.contains(index) else { continue }
+
+            if let groupId = exercise.supersetGroupId {
+                let groupIndices = currentDayExercises.indices.filter {
+                    currentDayExercises[$0].supersetGroupId == groupId
+                }
+                let group = groupIndices
+                    .map { currentDayExercises[$0] }
+                    .sorted { $0.supersetOrder < $1.supersetOrder }
+                for gi in groupIndices { usedIndices.insert(gi) }
+                groups.append(group)
+            } else {
+                usedIndices.insert(index)
+                groups.append([exercise])
+            }
+        }
+
+        return groups
+    }
+
     /// Update exercise configuration
     func updateExercise(at index: Int, sets: Int? = nil, repsMin: Int? = nil, repsMax: Int? = nil, rest: Int? = nil, notes: String? = nil) {
         guard currentDayExercises.indices.contains(index) else { return }
@@ -517,7 +599,9 @@ final class SplitBuilderViewModel {
                     targetRepsMin: draftExercise.targetRepsMin,
                     targetRepsMax: draftExercise.targetRepsMax,
                     restSeconds: draftExercise.restSeconds,
-                    notes: draftExercise.notes
+                    notes: draftExercise.notes,
+                    supersetGroupId: draftExercise.supersetGroupId,
+                    supersetOrder: draftExercise.supersetOrder
                 )
                 planned.workoutDay = workoutDay
                 planned.exercise = exercise
@@ -690,7 +774,9 @@ final class SplitBuilderViewModel {
                 targetRepsMin: draftExercise.targetRepsMin,
                 targetRepsMax: draftExercise.targetRepsMax,
                 restSeconds: draftExercise.restSeconds,
-                notes: draftExercise.notes
+                notes: draftExercise.notes,
+                supersetGroupId: draftExercise.supersetGroupId,
+                supersetOrder: draftExercise.supersetOrder
             )
             planned.workoutDay = workoutDay
             planned.exercise = exercise

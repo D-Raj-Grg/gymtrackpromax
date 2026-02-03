@@ -127,6 +127,7 @@ struct WorkoutDetailView: View {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundStyle(Color.gymPrimary)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(.system(.title3, design: .rounded))
@@ -155,10 +156,21 @@ struct WorkoutDetailView: View {
             if session.sortedExerciseLogs.isEmpty {
                 emptyExercisesView
             } else {
-                ForEach(session.sortedExerciseLogs) { exerciseLog in
+                let logs = session.sortedExerciseLogs
+                let supersetCounts = Dictionary(grouping: logs.filter { $0.supersetGroupId != nil }, by: { $0.supersetGroupId! })
+                    .mapValues { $0.count }
+
+                ForEach(logs) { exerciseLog in
+                    let supersetDisplay: String? = {
+                        guard let groupId = exerciseLog.supersetGroupId,
+                              let total = supersetCounts[groupId] else { return nil }
+                        return "Superset \(exerciseLog.supersetOrder + 1)/\(total)"
+                    }()
+
                     ExerciseDetailSection(
                         exerciseLog: exerciseLog,
-                        weightUnit: weightUnit
+                        weightUnit: weightUnit,
+                        supersetDisplay: supersetDisplay
                     )
                     .padding(.horizontal, AppSpacing.standard)
                 }
@@ -171,6 +183,7 @@ struct WorkoutDetailView: View {
             Image(systemName: "dumbbell")
                 .font(.largeTitle)
                 .foregroundStyle(Color.gymTextMuted)
+                .accessibilityHidden(true)
 
             Text("No exercises recorded")
                 .font(.subheadline)

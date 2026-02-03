@@ -83,7 +83,11 @@ final class WorkoutService {
 
         // Create exercise logs for each planned exercise
         for (index, plannedExercise) in workoutDay.sortedExercises.enumerated() {
-            let exerciseLog = ExerciseLog(exerciseOrder: index)
+            let exerciseLog = ExerciseLog(
+                exerciseOrder: index,
+                supersetGroupId: plannedExercise.supersetGroupId,
+                supersetOrder: plannedExercise.supersetOrder
+            )
             exerciseLog.exercise = plannedExercise.exercise
             exerciseLog.session = session
             session.exerciseLogs.append(exerciseLog)

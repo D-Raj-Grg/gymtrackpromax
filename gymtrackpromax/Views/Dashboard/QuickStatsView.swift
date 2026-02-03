@@ -54,6 +54,7 @@ struct QuickStatsView: View {
             Image(systemName: icon)
                 .font(.title3)
                 .foregroundStyle(Color.gymPrimary)
+                .accessibilityHidden(true)
 
             Text(value)
                 .font(.title2)

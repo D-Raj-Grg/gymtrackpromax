@@ -186,6 +186,8 @@ struct SetInputView: View {
                         .background(Color.gymCardHover)
                         .clipShape(Circle())
                 }
+                .accessibilityLabel("Decrease weight")
+                .accessibilityHint("Decreases by \(weightUnit == .kg ? "0.5 kg" : "1 lb")")
 
                 VStack(spacing: 0) {
                     if isEditingWeight {
@@ -238,6 +240,8 @@ struct SetInputView: View {
                         .background(Color.gymCardHover)
                         .clipShape(Circle())
                 }
+                .accessibilityLabel("Increase weight")
+                .accessibilityHint("Increases by \(weightUnit == .kg ? "0.5 kg" : "1 lb")")
             }
         }
     }
@@ -290,6 +294,7 @@ struct SetInputView: View {
                         .background(Color.gymCardHover)
                         .clipShape(Circle())
                 }
+                .accessibilityLabel("Decrease reps")
 
                 Group {
                     if isEditingReps {
@@ -338,6 +343,7 @@ struct SetInputView: View {
                         .background(Color.gymCardHover)
                         .clipShape(Circle())
                 }
+                .accessibilityLabel("Increase reps")
             }
         }
     }
@@ -350,10 +356,18 @@ struct SetInputView: View {
                 .font(.caption)
                 .foregroundStyle(Color.gymTextMuted)
 
-            // Large duration display
-            Text(formattedDuration)
-                .font(.system(size: 48, weight: .bold, design: .monospaced))
-                .foregroundStyle(isTimerRunning ? Color.gymAccent : Color.gymText)
+            // Large duration display (uses TimelineView when timer is running)
+            if isTimerRunning {
+                TimelineView(.periodic(from: .now, by: 1)) { _ in
+                    Text(liveDurationDisplay)
+                        .font(.system(size: 48, weight: .bold, design: .monospaced))
+                        .foregroundStyle(Color.gymAccent)
+                }
+            } else {
+                Text(formattedDuration)
+                    .font(.system(size: 48, weight: .bold, design: .monospaced))
+                    .foregroundStyle(Color.gymText)
+            }
 
             // Stepper controls
             HStack(spacing: AppSpacing.large) {
@@ -409,11 +423,21 @@ struct SetInputView: View {
                 .disabled(isTimerRunning)
 
                 VStack(spacing: 0) {
-                    Text(formattedDuration)
-                        .font(.system(.title, design: .monospaced))
-                        .fontWeight(.bold)
-                        .foregroundStyle(isTimerRunning ? Color.gymAccent : Color.gymText)
-                        .frame(minWidth: 60)
+                    if isTimerRunning {
+                        TimelineView(.periodic(from: .now, by: 1)) { _ in
+                            Text(liveDurationDisplay)
+                                .font(.system(.title, design: .monospaced))
+                                .fontWeight(.bold)
+                                .foregroundStyle(Color.gymAccent)
+                                .frame(minWidth: 60)
+                        }
+                    } else {
+                        Text(formattedDuration)
+                            .font(.system(.title, design: .monospaced))
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.gymText)
+                            .frame(minWidth: 60)
+                    }
 
                     // Mini timer button
                     Button {
@@ -540,15 +564,15 @@ struct SetInputView: View {
         timerStartTime = Date()
         duration = 0
         HapticManager.buttonTap()
+    }
 
-        // Start a timer to update duration
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            if isTimerRunning, let startTime = timerStartTime {
-                duration = Int(Date().timeIntervalSince(startTime))
-            } else {
-                timer.invalidate()
-            }
-        }
+    /// Live duration display computed from timerStartTime (used by TimelineView)
+    private var liveDurationDisplay: String {
+        guard let startTime = timerStartTime else { return formattedDuration }
+        let elapsed = Int(Date().timeIntervalSince(startTime))
+        let mins = elapsed / 60
+        let secs = elapsed % 60
+        return String(format: "%d:%02d", mins, secs)
     }
 
     private func stopTimer() {
@@ -582,6 +606,8 @@ struct SetInputView: View {
             .background(isWarmup ? Color.gymWarning.opacity(0.15) : Color.gymCardHover)
             .clipShape(Capsule())
         }
+        .accessibilityLabel("Warmup set\(isWarmup ? ", enabled" : "")")
+        .accessibilityAddTraits(isWarmup ? .isSelected : [])
     }
 
     // MARK: - Dropset Toggle
@@ -606,6 +632,8 @@ struct SetInputView: View {
             .background(isDropset ? Color.gymAccent.opacity(0.15) : Color.gymCardHover)
             .clipShape(Capsule())
         }
+        .accessibilityLabel("Drop set\(isDropset ? ", enabled" : "")")
+        .accessibilityAddTraits(isDropset ? .isSelected : [])
     }
 
     // MARK: - RPE Picker
@@ -636,6 +664,7 @@ struct SetInputView: View {
             .background(rpe != nil ? Color.gymPrimary.opacity(0.15) : Color.gymCardHover)
             .clipShape(Capsule())
         }
+        .accessibilityLabel(rpe != nil ? "RPE \(rpe!)" : "Rate of perceived exertion, not set")
     }
 }
 

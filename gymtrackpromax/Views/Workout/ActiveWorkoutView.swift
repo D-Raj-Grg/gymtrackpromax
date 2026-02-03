@@ -214,10 +214,24 @@ struct ActiveWorkoutView: View {
 
             // Workout name
             VStack(alignment: .leading, spacing: 2) {
-                Text(workoutDay.name)
-                    .font(.headline)
-                    .foregroundStyle(Color.gymText)
-                    .lineLimit(1)
+                HStack(spacing: AppSpacing.small) {
+                    Text(workoutDay.name)
+                        .font(.headline)
+                        .foregroundStyle(Color.gymText)
+                        .lineLimit(1)
+
+                    // Superset badge
+                    if let supersetDisplay = vm.supersetPositionDisplay {
+                        Text(supersetDisplay)
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color.gymText)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.gymAccent)
+                            .clipShape(Capsule())
+                    }
+                }
 
                 // Progress indicator
                 Text("\(vm.currentExerciseIndex + 1)/\(vm.exerciseLogs.count) exercises")
@@ -229,21 +243,24 @@ struct ActiveWorkoutView: View {
 
             Spacer()
 
-            // Timer
-            HStack(spacing: AppSpacing.xs) {
-                Image(systemName: "clock")
-                    .font(.caption)
-                    .foregroundStyle(Color.gymTextMuted)
+            // Timer (driven by TimelineView for zero-cost updates)
+            TimelineView(.periodic(from: .now, by: 1)) { _ in
+                HStack(spacing: AppSpacing.xs) {
+                    Image(systemName: "clock")
+                        .font(.caption)
+                        .foregroundStyle(Color.gymTextMuted)
+                        .accessibilityHidden(true)
 
-                Text(vm.elapsedTimeDisplay)
-                    .font(.system(.subheadline, design: .monospaced))
-                    .foregroundStyle(Color.gymText)
+                    Text(WorkoutViewModel.formatElapsedTime(from: vm.workoutStartTime))
+                        .font(.system(.subheadline, design: .monospaced))
+                        .foregroundStyle(Color.gymText)
+                }
+                .padding(.horizontal, AppSpacing.component)
+                .padding(.vertical, AppSpacing.small)
+                .background(Color.gymCard)
+                .clipShape(Capsule())
+                .accessibilityLabel("Workout duration: \(WorkoutViewModel.formatElapsedTime(from: vm.workoutStartTime))")
             }
-            .padding(.horizontal, AppSpacing.component)
-            .padding(.vertical, AppSpacing.small)
-            .background(Color.gymCard)
-            .clipShape(Capsule())
-            .accessibilityLabel("Workout duration: \(vm.elapsedTimeDisplay)")
 
             // Exercise list button
             Button {

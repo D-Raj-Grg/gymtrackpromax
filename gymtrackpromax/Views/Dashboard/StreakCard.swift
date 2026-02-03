@@ -20,6 +20,7 @@ struct StreakCard: View {
             Image(systemName: "flame.fill")
                 .font(.system(size: 40))
                 .foregroundStyle(Color.white)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 // Streak count

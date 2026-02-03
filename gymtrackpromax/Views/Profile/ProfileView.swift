@@ -42,68 +42,66 @@ struct ProfileView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.gymBackground
-                    .ignoresSafeArea()
+        ZStack {
+            Color.gymBackground
+                .ignoresSafeArea()
 
-                if let user = currentUser {
-                    ScrollView {
-                        VStack(spacing: AppSpacing.section) {
-                            // Profile Header
-                            profileHeader(user: user)
+            if let user = currentUser {
+                ScrollView {
+                    VStack(spacing: AppSpacing.section) {
+                        // Profile Header
+                        profileHeader(user: user)
 
-                            // Stats Summary
-                            statsSection
+                        // Stats Summary
+                        statsSection
 
-                            // Settings List
-                            settingsSection(user: user)
+                        // Settings List
+                        settingsSection(user: user)
 
-                            Spacer(minLength: AppSpacing.xl)
-                        }
-                        .padding(.top, AppSpacing.standard)
+                        Spacer(minLength: AppSpacing.xl)
                     }
-                } else {
-                    noUserView
+                    .padding(.top, AppSpacing.standard)
                 }
+            } else {
+                noUserView
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Profile")
-                        .font(.headline)
-                        .foregroundStyle(Color.gymText)
-                }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Profile")
+                    .font(.headline)
+                    .foregroundStyle(Color.gymText)
             }
-            .sheet(isPresented: $showingEditProfile) {
-                if let user = currentUser {
-                    EditProfileView(user: user)
-                }
+        }
+        .sheet(isPresented: $showingEditProfile) {
+            if let user = currentUser {
+                EditProfileView(user: user)
             }
-            .sheet(isPresented: Binding(
-                get: { viewModel?.showingExportSheet ?? false },
-                set: { viewModel?.showingExportSheet = $0 }
-            )) {
-                if let url = viewModel?.exportedCSVURL {
-                    ShareSheet(items: [url])
-                }
+        }
+        .sheet(isPresented: Binding(
+            get: { viewModel?.showingExportSheet ?? false },
+            set: { viewModel?.showingExportSheet = $0 }
+        )) {
+            if let url = viewModel?.exportedCSVURL {
+                ShareSheet(items: [url])
             }
-            .alert("Clear All Data", isPresented: $showingClearDataAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Clear Data", role: .destructive) {
-                    viewModel?.clearAllData(user: currentUser)
-                }
-            } message: {
-                Text("This will permanently delete all your workout history, personal records, and settings. This action cannot be undone.")
+        }
+        .alert("Clear All Data", isPresented: $showingClearDataAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Clear Data", role: .destructive) {
+                viewModel?.clearAllData(user: currentUser)
             }
-            .alert("Error", isPresented: Binding(
-                get: { viewModel?.showingError ?? false },
-                set: { viewModel?.showingError = $0 }
-            )) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(viewModel?.errorMessage ?? "An error occurred")
-            }
+        } message: {
+            Text("This will permanently delete all your workout history, personal records, and settings. This action cannot be undone.")
+        }
+        .alert("Error", isPresented: Binding(
+            get: { viewModel?.showingError ?? false },
+            set: { viewModel?.showingError = $0 }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(viewModel?.errorMessage ?? "An error occurred")
         }
         .onAppear {
             setupViewModel()
@@ -224,6 +222,7 @@ struct ProfileView: View {
                 HStack {
                     Image(systemName: "star.fill")
                         .foregroundStyle(Color.gymWarning)
+                        .accessibilityHidden(true)
 
                     Text("Longest streak: \(longestStreak) days")
                         .font(.subheadline)
@@ -243,9 +242,10 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: AppSpacing.component) {
             // Preferences
             settingsGroup(title: "Preferences") {
-                // Workout Split
-                NavigationLink {
-                    SplitListView()
+                // Workout Split - switches to Workout tab
+                Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    NotificationCenter.default.post(name: .switchToWorkoutTab, object: nil)
                 } label: {
                     SettingsRow(
                         icon: "calendar.badge.clock",
@@ -254,6 +254,7 @@ struct ProfileView: View {
                         value: user.activeSplit?.name ?? "Not set"
                     )
                 }
+                .buttonStyle(.plain)
 
                 Divider()
                     .background(Color.gymBorder)
@@ -283,6 +284,7 @@ struct ProfileView: View {
                     } label: {
                         Color.clear
                     }
+                    .accessibilityLabel("Change weight unit, currently \(user.weightUnit.displayName)")
                 }
 
                 Divider()
@@ -313,6 +315,7 @@ struct ProfileView: View {
                     } label: {
                         Color.clear
                     }
+                    .accessibilityLabel("Change week start day, currently \(user.weekStartDay.displayName)")
                 }
 
                 Divider()
@@ -343,6 +346,7 @@ struct ProfileView: View {
                     } label: {
                         Color.clear
                     }
+                    .accessibilityLabel("Change default rest time, currently \(viewModel?.formatRestTime(viewModel?.defaultRestTime ?? 90) ?? "90s")")
                 }
 
                 Divider()
@@ -365,6 +369,7 @@ struct ProfileView: View {
                 }
                 .tint(Color.gymPrimary)
                 .padding(.vertical, AppSpacing.small)
+                .accessibilityHint("Toggle rest timer and workout reminder notifications")
             }
 
             // Data

@@ -43,9 +43,8 @@ struct ExerciseLogView: View {
     // MARK: - Body
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.standard) {
+        ScrollView {
+            VStack(alignment: .leading, spacing: AppSpacing.standard) {
                 // Exercise header
                 exerciseHeader
 
@@ -82,12 +81,9 @@ struct ExerciseLogView: View {
                 )
 
                 Spacer(minLength: AppSpacing.xl)
-                }
-                .frame(width: geometry.size.width - 32)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, AppSpacing.small)
             }
-            .frame(width: geometry.size.width)
+            .padding(.horizontal, AppSpacing.standard)
+            .padding(.top, AppSpacing.small)
         }
         .scrollContentBackground(.hidden)
     }
@@ -124,6 +120,8 @@ struct ExerciseLogView: View {
             }
         }
         .padding(.vertical, AppSpacing.small)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(exerciseLog.exerciseName)\(exerciseLog.exercise?.primaryMuscle != nil ? ", \(exerciseLog.exercise!.primaryMuscle.displayName)" : "")\(plannedExercise != nil ? ", \(plannedExercise!.setsAndRepsDisplay)" : "")")
     }
 
     // MARK: - Previous Performance
@@ -134,6 +132,7 @@ struct ExerciseLogView: View {
                 Image(systemName: "clock.arrow.circlepath")
                     .font(.caption)
                     .foregroundStyle(Color.gymTextMuted)
+                    .accessibilityHidden(true)
 
                 Text("Last: \(performance)")
                     .font(.caption)
@@ -201,6 +200,7 @@ struct ExerciseLogView: View {
                         Image(systemName: "note.text")
                             .font(.caption)
                             .foregroundStyle(Color.gymTextMuted)
+                            .accessibilityHidden(true)
 
                         Text("Notes")
                             .font(.caption)
@@ -220,6 +220,7 @@ struct ExerciseLogView: View {
                                     .font(.caption)
                                     .foregroundStyle(Color.gymTextMuted)
                             }
+                            .accessibilityLabel("Clear notes")
                         }
                     }
 
@@ -246,6 +247,7 @@ struct ExerciseLogView: View {
                     HStack(spacing: AppSpacing.xs) {
                         Image(systemName: "plus.circle")
                             .font(.caption)
+                            .accessibilityHidden(true)
                         Text("Add Note")
                             .font(.caption)
                             .fontWeight(.medium)

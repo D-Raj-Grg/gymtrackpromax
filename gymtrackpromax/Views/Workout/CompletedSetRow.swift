@@ -62,6 +62,7 @@ struct CompletedSetRow: View {
                     .foregroundStyle(Color.gymTextMuted)
                     .frame(width: 32, height: 32)
             }
+            .accessibilityLabel("More options for set \(set.setNumber)")
         }
         .padding(.horizontal, AppSpacing.component)
         .padding(.vertical, AppSpacing.small)
@@ -102,6 +103,7 @@ struct CompletedSetRow: View {
                     .foregroundStyle(Color.gymText)
             }
         }
+        .accessibilityLabel(set.isWarmup ? "Warmup set" : set.isDropset ? "Drop set" : "Set \(set.setNumber)")
     }
 
     private var indicatorColor: Color {

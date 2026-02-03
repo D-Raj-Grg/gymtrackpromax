@@ -42,6 +42,10 @@ final class ExerciseService {
 
             try context.save()
             print("ExerciseService: Seeded \(exerciseDataList.count) exercises from JSON")
+
+            // Index all exercises for Spotlight search
+            let allExercises = fetchAllExercises(context: context)
+            SpotlightService.shared.indexAllExercises(allExercises)
         } catch {
             print("ExerciseService: Error loading exercises from JSON: \(error)")
             // Fallback to default exercises
@@ -59,6 +63,9 @@ final class ExerciseService {
 
         try? context.save()
         print("ExerciseService: Seeded \(defaultExercises.count) default exercises")
+
+        // Index all exercises for Spotlight search
+        SpotlightService.shared.indexAllExercises(defaultExercises)
     }
 
     /// Adds any missing built-in exercises for existing users (e.g., after an app update adds new exercises)
@@ -91,6 +98,10 @@ final class ExerciseService {
         if addedCount > 0 {
             try? context.save()
             print("ExerciseService: Added \(addedCount) missing exercises")
+
+            // Re-index all exercises for Spotlight search
+            let allExercises = fetchAllExercises(context: context)
+            SpotlightService.shared.indexAllExercises(allExercises)
         }
     }
 
@@ -458,6 +469,10 @@ final class ExerciseService {
         do {
             try context.save()
             print("ExerciseService: Created custom exercise '\(trimmedName)'")
+
+            // Index for Spotlight search
+            SpotlightService.shared.indexExercise(exercise)
+
             return exercise
         } catch {
             throw ExerciseError.saveFailed(error)
@@ -558,6 +573,9 @@ final class ExerciseService {
         do {
             try context.save()
             print("ExerciseService: Deleted exercise '\(exerciseName)'")
+
+            // Remove from Spotlight index
+            SpotlightService.shared.removeExerciseFromIndex(id: exerciseId)
         } catch {
             throw ExerciseError.saveFailed(error)
         }

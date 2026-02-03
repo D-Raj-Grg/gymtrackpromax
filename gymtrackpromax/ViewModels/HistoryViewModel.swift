@@ -38,6 +38,10 @@ final class HistoryViewModel {
     private var cachedSessions: [WorkoutSession] = []
     private var maxMonthlyVolume: Double = 0
 
+    // Static PR cache (shared across instances, only recomputed when sessions change)
+    private static var cachedPRSessionIds: Set<UUID> = []
+    private static var cachedPRSessionCount: Int = 0
+
     // MARK: - Initialization
 
     init(modelContext: ModelContext) {
@@ -82,10 +86,8 @@ final class HistoryViewModel {
         }
     }
 
-    /// Detect which sessions contain PRs
+    /// Detect which sessions contain PRs (uses static cache to avoid rescanning on month navigation)
     private func detectSessionPRs() {
-        sessionsWithPRs.removeAll()
-
         // Fetch all completed sessions chronologically
         let allPredicate = #Predicate<WorkoutSession> { session in
             session.endTime != nil
@@ -97,21 +99,29 @@ final class HistoryViewModel {
 
         guard let allSessions = try? modelContext.fetch(allDescriptor) else { return }
 
-        var exerciseBests: [UUID: Double] = [:]
+        // Only recompute if session count changed (new sessions added/deleted)
+        if allSessions.count != Self.cachedPRSessionCount {
+            Self.cachedPRSessionIds.removeAll()
+            Self.cachedPRSessionCount = allSessions.count
 
-        for session in allSessions {
-            for log in session.exerciseLogs {
-                guard let exercise = log.exercise else { continue }
+            var exerciseBests: [UUID: Double] = [:]
 
-                for set in log.workingSetsArray {
-                    let currentBest = exerciseBests[exercise.id] ?? 0
-                    if set.estimated1RM > currentBest {
-                        exerciseBests[exercise.id] = set.estimated1RM
-                        sessionsWithPRs.insert(session.id)
+            for session in allSessions {
+                for log in session.exerciseLogs {
+                    guard let exercise = log.exercise else { continue }
+
+                    for set in log.workingSetsArray {
+                        let currentBest = exerciseBests[exercise.id] ?? 0
+                        if set.estimated1RM > currentBest {
+                            exerciseBests[exercise.id] = set.estimated1RM
+                            Self.cachedPRSessionIds.insert(session.id)
+                        }
                     }
                 }
             }
         }
+
+        sessionsWithPRs = Self.cachedPRSessionIds
     }
 
     /// Calculate the maximum daily volume for intensity scaling

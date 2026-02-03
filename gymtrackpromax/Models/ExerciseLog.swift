@@ -16,6 +16,8 @@ final class ExerciseLog {
     var id: UUID
     var exerciseOrder: Int
     var notes: String?
+    var supersetGroupId: UUID? = nil
+    var supersetOrder: Int = 0
 
     // MARK: - Relationships
 
@@ -30,11 +32,20 @@ final class ExerciseLog {
     init(
         id: UUID = UUID(),
         exerciseOrder: Int,
-        notes: String? = nil
+        notes: String? = nil,
+        supersetGroupId: UUID? = nil,
+        supersetOrder: Int = 0
     ) {
         self.id = id
         self.exerciseOrder = exerciseOrder
         self.notes = notes
+        self.supersetGroupId = supersetGroupId
+        self.supersetOrder = supersetOrder
+    }
+
+    /// Whether this exercise is part of a superset
+    var isInSuperset: Bool {
+        supersetGroupId != nil
     }
 
     // MARK: - Computed Properties

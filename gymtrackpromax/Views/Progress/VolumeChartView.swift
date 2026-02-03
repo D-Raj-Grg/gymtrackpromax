@@ -74,6 +74,7 @@ struct VolumeChartView: View {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(Color.gymTextMuted)
             }
+            .accessibilityLabel("Dismiss selection")
         }
     }
 
@@ -188,6 +189,9 @@ struct VolumeChartView: View {
                     }
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Volume trend chart with \(data.count) data points. Average volume \(formatVolume(averageVolume))")
+        .accessibilityHint("Tap or drag to explore individual data points")
     }
 
     // MARK: - Interaction

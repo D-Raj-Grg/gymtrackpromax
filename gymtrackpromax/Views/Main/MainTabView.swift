@@ -9,9 +9,15 @@ import SwiftUI
 import SwiftData
 
 struct MainTabView: View {
+    // MARK: - Properties
+
+    @Binding var spotlightDestination: SpotlightDestination?
+    @Binding var intentWorkoutDayId: UUID?
+
     // MARK: - State
 
     @State private var selectedTab: Tab = .home
+    @State private var historyNavigationSessionId: UUID?
 
     // MARK: - Tab Enum
 
@@ -53,7 +59,7 @@ struct MainTabView: View {
                 }
                 .tag(Tab.home)
 
-            WorkoutTabView()
+            WorkoutTabView(intentWorkoutDayId: $intentWorkoutDayId)
                 .tabItem {
                     Label(Tab.workout.title, systemImage: Tab.workout.icon)
                 }
@@ -87,6 +93,27 @@ struct MainTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .restTimerNotificationTapped)) { _ in
             selectedTab = .workout
         }
+        .onReceive(NotificationCenter.default.publisher(for: .switchToWorkoutTab)) { _ in
+            selectedTab = .workout
+        }
+        .onChange(of: spotlightDestination) { _, destination in
+            guard let destination else { return }
+            switch destination {
+            case .exercise:
+                // Switch to workout tab where exercises are browsable
+                selectedTab = .workout
+            case .workoutSession:
+                // Switch to history tab
+                selectedTab = .history
+            }
+            // Clear after handling
+            spotlightDestination = nil
+        }
+        .onChange(of: intentWorkoutDayId) { _, workoutDayId in
+            guard workoutDayId != nil else { return }
+            // Switch to workout tab - WorkoutTabView handles the intent
+            selectedTab = .workout
+        }
     }
 
     // MARK: - Tab Bar Configuration
@@ -116,15 +143,18 @@ struct MainTabView: View {
 // MARK: - Preview
 
 #Preview {
-    MainTabView()
-        .modelContainer(for: [
-            User.self,
-            WorkoutSplit.self,
-            WorkoutDay.self,
-            Exercise.self,
-            PlannedExercise.self,
-            WorkoutSession.self,
-            ExerciseLog.self,
-            SetLog.self
-        ], inMemory: true)
+    MainTabView(
+        spotlightDestination: .constant(nil),
+        intentWorkoutDayId: .constant(nil)
+    )
+    .modelContainer(for: [
+        User.self,
+        WorkoutSplit.self,
+        WorkoutDay.self,
+        Exercise.self,
+        PlannedExercise.self,
+        WorkoutSession.self,
+        ExerciseLog.self,
+        SetLog.self
+    ], inMemory: true)
 }

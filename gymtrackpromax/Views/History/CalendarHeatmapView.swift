@@ -52,19 +52,35 @@ struct CalendarHeatmapView: View {
         .padding(AppSpacing.standard)
         .background(Color.gymCard)
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card))
+        .accessibilityLabel("Workout calendar for \(monthYearLabel)")
     }
 
     // MARK: - Subviews
 
     private var weekdayHeader: some View {
         HStack(spacing: 4) {
-            ForEach(weekdaySymbols.indices, id: \.self) { index in
+            ForEach(orderedFullWeekdayNames.indices, id: \.self) { index in
                 Text(weekdaySymbols[index])
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(Color.gymTextMuted)
                     .frame(maxWidth: .infinity)
+                    .accessibilityLabel(orderedFullWeekdayNames[index])
             }
+        }
+    }
+
+    private var monthYearLabel: String {
+        month.formatted(.dateTime.month(.wide).year())
+    }
+
+    private var orderedFullWeekdayNames: [String] {
+        let allNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        switch weekStartDay {
+        case .sunday:
+            return allNames
+        case .monday:
+            return Array(allNames[1...]) + [allNames[0]]
         }
     }
 
