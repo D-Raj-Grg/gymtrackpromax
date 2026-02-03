@@ -208,11 +208,20 @@ final class WorkoutViewModel {
     private var workoutService = WorkoutService.shared
     private var restTimerObserver: Any?
     private var dayEditedObserver: Any?
+    private var watchStartedObserver: Any?
+    private var watchSetLoggedObserver: Any?
+    private var watchCompletedObserver: Any?
 
     // MARK: - Initialization
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
+        observeWatchEvents()
+    }
+
+    deinit {
+        let center = NotificationCenter.default
+        center.removeObserver(self)
     }
 
     // MARK: - Workout Actions
@@ -611,6 +620,11 @@ final class WorkoutViewModel {
         LiveActivityService.shared.updateActivity(state: state)
     }
 
+    /// Send current workout state to the Watch
+    private func syncStateToWatch() {
+        PhoneConnectivityService.shared.sendWorkoutState()
+    }
+
     private func startLiveActivity() {
         guard let session = currentSession,
               let workoutDay = session.workoutDay else { return }
@@ -710,5 +724,73 @@ final class WorkoutViewModel {
         pendingRPE = nil
         isWarmupSet = false
         isDropset = false
+    }
+
+    // MARK: - Watch Event Observers
+
+    private func observeWatchEvents() {
+        // Observe workout started from Watch
+        watchStartedObserver = NotificationCenter.default.addObserver(
+            forName: .workoutStartedFromWatch,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self,
+                  let session = notification.object as? WorkoutSession else { return }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Resume the workout that was started from Watch
+                self.resumeWorkout(session: session)
+            }
+        }
+
+        // Observe set logged from Watch
+        watchSetLoggedObserver = NotificationCenter.default.addObserver(
+            forName: .setLoggedFromWatch,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self else { return }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Refresh UI to show the new set
+                // The set is already logged, just need to update Live Activity
+                self.updateLiveActivity()
+            }
+        }
+
+        // Observe workout completed from Watch
+        watchCompletedObserver = NotificationCenter.default.addObserver(
+            forName: .workoutCompletedFromWatch,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let self else { return }
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                // Mark workout as completed in UI
+                self.isWorkoutCompleted = true
+                self.timerService.stop()
+                LiveActivityService.shared.endActivity()
+                self.removeRestTimerObserver()
+                self.removeDayEditedObserver()
+                WidgetUpdateService.reloadAllTimelines()
+            }
+        }
+    }
+
+    private func removeWatchObservers() {
+        if let observer = watchStartedObserver {
+            NotificationCenter.default.removeObserver(observer)
+            watchStartedObserver = nil
+        }
+        if let observer = watchSetLoggedObserver {
+            NotificationCenter.default.removeObserver(observer)
+            watchSetLoggedObserver = nil
+        }
+        if let observer = watchCompletedObserver {
+            NotificationCenter.default.removeObserver(observer)
+            watchCompletedObserver = nil
+        }
     }
 }

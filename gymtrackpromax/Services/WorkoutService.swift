@@ -115,6 +115,16 @@ final class WorkoutService {
 
         // Post notification
         NotificationCenter.default.post(name: .workoutCompleted, object: session)
+
+        // Sync to HealthKit (fire-and-forget, errors are logged silently)
+        Task {
+            do {
+                try await HealthKitService.shared.saveWorkout(session)
+            } catch {
+                // Silent failure - don't interrupt user experience
+                print("HealthKit sync failed: \(error.localizedDescription)")
+            }
+        }
     }
 
     /// Abandon a workout session

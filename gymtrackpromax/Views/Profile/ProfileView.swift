@@ -374,6 +374,20 @@ struct ProfileView: View {
 
             // Data
             settingsGroup(title: "Data") {
+                NavigationLink {
+                    HealthKitSettingsView()
+                } label: {
+                    SettingsRow(
+                        icon: "heart.fill",
+                        iconColor: .red,
+                        title: "Apple Health",
+                        value: HealthKitService.shared.isEnabled ? "On" : "Off"
+                    )
+                }
+
+                Divider()
+                    .background(Color.gymBorder)
+
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     viewModel?.exportDataToCSV(user: currentUser, sessions: sessions)

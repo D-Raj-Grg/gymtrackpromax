@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import WatchConnectivity
 import WidgetKit
 
 @main
@@ -55,14 +56,27 @@ struct GymTrackProApp: App {
             .task {
                 await seedExercisesIfNeeded()
                 isExercisesLoaded = true
+
+                // Activate Watch connectivity after exercises are loaded
+                activateWatchConnectivity()
             }
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 WidgetUpdateService.reloadAllTimelines()
+
+                // Send updated data to Watch when app becomes active
+                PhoneConnectivityService.shared.sendTodayWorkout()
             }
         }
+    }
+
+    // MARK: - Watch Connectivity
+
+    /// Activates Watch connectivity service
+    private func activateWatchConnectivity() {
+        PhoneConnectivityService.shared.activate(modelContext: sharedModelContainer.mainContext)
     }
 
     // MARK: - Seed Data

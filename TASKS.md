@@ -723,14 +723,14 @@
 
 ---
 
-### Milestone 3.3: Apple Watch App
+### Milestone 3.3: Apple Watch App ✅
 **Duration:** Week 5-8
 
-- [ ] Create WatchOS target
-- [ ] Watch-specific UI
-- [ ] Start workout from Watch
-- [ ] Log sets on Watch
-- [ ] Sync with iPhone
+- [x] Create WatchOS target (files created; user must add target in Xcode)
+- [x] Watch-specific UI (WatchWorkoutListView, WatchActiveWorkoutView, WatchExerciseView, WatchSetInputView, WatchWorkoutSummaryView)
+- [x] Start workout from Watch
+- [x] Log sets on Watch (with Digital Crown support)
+- [x] Sync with iPhone (WatchConnectivity bidirectional sync)
 
 ---
 
@@ -777,10 +777,20 @@
 | Milestone | Tasks | Completed | Progress |
 |-----------|-------|-----------|----------|
 | 2.1 Custom Splits | 21 | 21 | 100% ✅ |
-| 2.2 Widgets | 6 | 6 | 100% |
+| 2.2 Widgets | 6 | 6 | 100% ✅ |
 | 2.3 Live Activities | 6 | 6 | 100% ✅ |
 | 2.4 Additional Features | 11 | 8 | 73% |
 | **Total** | **44** | **41** | **93%** |
+
+### Phase 3 Progress
+| Milestone | Tasks | Completed | Progress |
+|-----------|-------|-----------|----------|
+| 3.1 CloudKit Sync | 5 | 0 | 0% |
+| 3.2 HealthKit Integration | 4 | 0 | 0% |
+| 3.3 Apple Watch App | 5 | 5 | 100% ✅ |
+| 3.4 Siri & Shortcuts | 5 | 5 | 100% ✅ |
+| 3.5 Pro Subscription | 7 | 0 | 0% |
+| **Total** | **26** | **10** | **38%** |
 
 ---
 
@@ -814,9 +824,11 @@
 | 1.7 Profile | Week 8 | Week 4 | Full profile & settings |
 | 1.8 Polish | Week 10 | Week 4 | Haptics, empty/loading states |
 | 2.1 Custom Splits | Week 2 | Week 5 | Split builder, exercise picker, CRUD |
+| 3.3 Apple Watch App | Week 8 | Feb 2026 | WatchConnectivity, Digital Crown input |
+| 3.4 Siri & Shortcuts | Week 9 | Feb 2026 | App Intents, Shortcuts integration |
 
 ---
 
-*Document Version: 1.0*  
-*Created: January 2026*  
-*Last Updated: January 2026*
+*Document Version: 1.0*
+*Created: January 2026*
+*Last Updated: February 2026*
