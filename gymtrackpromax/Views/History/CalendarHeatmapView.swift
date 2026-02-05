@@ -34,7 +34,7 @@ struct CalendarHeatmapView: View {
 
             // Calendar grid
             LazyVGrid(columns: columns, spacing: 4) {
-                ForEach(daysInMonth, id: \.self) { date in
+                ForEach(Array(daysInMonth.enumerated()), id: \.offset) { index, date in
                     CalendarDayCell(
                         date: date,
                         intensity: date != nil ? intensityForDate(date!) : 0,

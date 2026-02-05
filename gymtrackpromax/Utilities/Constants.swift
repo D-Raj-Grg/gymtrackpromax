@@ -142,6 +142,10 @@ enum UserDefaultsKeys {
     static let notificationsEnabled = "notificationsEnabled"
     static let lastOpenedDate = "lastOpenedDate"
     static let preferredWeightUnit = "preferredWeightUnit"
+
+    // CloudKit sync
+    static let cloudKitSyncEnabled = "cloudKitSyncEnabled"
+    static let cloudKitLastSyncDate = "cloudKitLastSyncDate"
 }
 
 // MARK: - Notification Names

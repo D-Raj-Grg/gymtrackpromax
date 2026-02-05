@@ -17,6 +17,9 @@ enum SharedModelContainer {
     /// App Group identifier shared between the main app and widget extension.
     static let appGroupIdentifier = "group.gymtrackpromax.shared"
 
+    /// CloudKit container identifier for iCloud sync.
+    static let cloudKitContainerIdentifier = "iCloud.com.gymtrackpromax"
+
     /// Database file name.
     private static let storeName = "default.store"
 
@@ -66,6 +69,28 @@ enum SharedModelContainer {
             allowsSave: false
         )
         return try ModelContainer(for: schema, configurations: [config])
+    }
+
+    /// Creates a CloudKit-enabled `ModelContainer` for the main app with iCloud sync.
+    static func makeCloudKitContainer() throws -> ModelContainer {
+        let config = ModelConfiguration(
+            schema: schema,
+            url: sharedStoreURL,
+            allowsSave: true,
+            cloudKitDatabase: .private(cloudKitContainerIdentifier)
+        )
+        return try ModelContainer(for: schema, configurations: [config])
+    }
+
+    /// Creates a container based on user preference for CloudKit sync.
+    /// - Parameter cloudKitEnabled: Whether to enable CloudKit sync
+    /// - Returns: A ModelContainer configured appropriately
+    static func makeContainer(cloudKitEnabled: Bool) throws -> ModelContainer {
+        if cloudKitEnabled {
+            return try makeCloudKitContainer()
+        } else {
+            return try makeContainer()
+        }
     }
 
     // MARK: - Migration

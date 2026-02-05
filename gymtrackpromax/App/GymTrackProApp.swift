@@ -23,8 +23,11 @@ struct GymTrackProApp: App {
         // Migrate existing store to App Group container on first launch
         SharedModelContainer.migrateStoreIfNeeded()
 
+        // Check if CloudKit sync is enabled
+        let cloudKitEnabled = UserDefaults.standard.bool(forKey: UserDefaultsKeys.cloudKitSyncEnabled)
+
         do {
-            return try SharedModelContainer.makeContainer()
+            return try SharedModelContainer.makeContainer(cloudKitEnabled: cloudKitEnabled)
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

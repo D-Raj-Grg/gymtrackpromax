@@ -388,6 +388,20 @@ struct ProfileView: View {
                 Divider()
                     .background(Color.gymBorder)
 
+                NavigationLink {
+                    CloudKitSettingsView()
+                } label: {
+                    SettingsRow(
+                        icon: "icloud.fill",
+                        iconColor: .blue,
+                        title: "iCloud Sync",
+                        value: CloudKitSyncService.shared.isEnabled ? "On" : "Off"
+                    )
+                }
+
+                Divider()
+                    .background(Color.gymBorder)
+
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     viewModel?.exportDataToCSV(user: currentUser, sessions: sessions)

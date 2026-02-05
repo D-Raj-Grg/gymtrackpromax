@@ -702,13 +702,13 @@
 
 ---
 
-### Milestone 3.1: CloudKit Sync
+### Milestone 3.1: CloudKit Sync ✅
 **Duration:** Week 1-3
 
-- [ ] Enable CloudKit capability
-- [ ] Configure SwiftData for CloudKit
-- [ ] Handle sync conflicts
-- [ ] Add sync status indicator
+- [x] Enable CloudKit capability
+- [x] Configure SwiftData for CloudKit
+- [x] Handle sync conflicts (SwiftData default: server wins)
+- [x] Add sync status indicator
 - [ ] Test multi-device sync
 
 ---
@@ -785,12 +785,12 @@
 ### Phase 3 Progress
 | Milestone | Tasks | Completed | Progress |
 |-----------|-------|-----------|----------|
-| 3.1 CloudKit Sync | 5 | 0 | 0% |
+| 3.1 CloudKit Sync | 5 | 4 | 80% ✅ |
 | 3.2 HealthKit Integration | 4 | 4 | 100% ✅ |
 | 3.3 Apple Watch App | 5 | 5 | 100% ✅ |
 | 3.4 Siri & Shortcuts | 5 | 5 | 100% ✅ |
 | 3.5 Pro Subscription | 7 | 0 | 0% |
-| **Total** | **26** | **14** | **54%** |
+| **Total** | **26** | **18** | **69%** |
 
 ---
 
@@ -827,6 +827,7 @@
 | 3.2 HealthKit Integration | Week 5 | Feb 2026 | Save workouts, read body weight, historical sync |
 | 3.3 Apple Watch App | Week 8 | Feb 2026 | WatchConnectivity, Digital Crown input |
 | 3.4 Siri & Shortcuts | Week 9 | Feb 2026 | App Intents, Shortcuts integration |
+| 3.1 CloudKit Sync | Week 3 | Feb 2026 | SwiftData CloudKit, settings UI, entitlements |
 
 ---
 
